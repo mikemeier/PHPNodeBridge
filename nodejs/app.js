@@ -1,11 +1,14 @@
+var config = require('./config');
+
 var request = require('request');
 var async = require('async');
 var bodyParser = require('connect-hopeful-body-parser');
+var queryString = require('querystring');
 
 var app = require('http').createServer(handler)
   , io = require('socket.io').listen(app);
 
-app.listen(8080);
+app.listen(config.socket.port);
 
 function handler(req, res){
 	if(req.method == 'POST'){	
@@ -81,10 +84,18 @@ function requestToBridge(socket, eventName, data, cb){
 			}
 			return;
 		}
+        
+        var bodyContent = querystring.stringify({
+            socketId: socket.id,
+            sessionId: results.sessionId,
+            event: eventName,
+            data: JSON.stringify(data)
+        });
+        
 		request.post({
 			headers: {'content-type' : 'application/x-www-form-urlencoded'},
 			uri: results.bridgeUri,
-			body: 'socketId='+ socket.id +'&sessionId='+ results.sessionId +'&event='+ eventName +'&data='+ JSON.stringify(data)
+			body: bodyContent
 		}, function(err, response, body){
 			if(typeof(cb) == "function"){
 				cb(err, body);
