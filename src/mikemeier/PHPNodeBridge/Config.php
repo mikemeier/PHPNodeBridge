@@ -18,7 +18,17 @@ class Config
     /**
      * @var string 
      */
-    protected $socketBridgeUri;
+    protected $socketIoClientToken;
+    
+    /**
+     * @var string 
+     */
+    protected $socketIoServerToken;
+    
+    /**
+     * @var string 
+     */
+    protected $socketIoApiTokenName;
     
     /**
      * @param array $options
@@ -36,19 +46,11 @@ class Config
         }
     }
     
-    public function setSocketBridgeUri($uri)
-    {
-        $this->socketBridgeUri = $uri;
-    }
-    
-    public function getSocketBridgeUri()
-    {
-        return $this->socketBridgeUri;
-    }
-    
     public function setSocketIoClientUri($uri)
     {
         $this->socketIoClientUri = $uri;
+        
+        return $this;
     }
     
     public function getSocketIoClientUri()
@@ -59,11 +61,49 @@ class Config
     public function setSocketIoServerUri($uri)
     {
         $this->socketIoServerUri = $uri;
+        
+        return $this;
     }
     
     public function getSocketIoServerUri()
     {
         return $this->socketIoServerUri;
+    }
+    
+    public function getSocketIoClientToken()
+    {
+        return $this->socketIoClientToken;
+    }
+    
+    public function setSocketIoClientToken($token)
+    {
+        $this->socketIoClientToken = $token;
+        
+        return $this;
+    }
+    
+    public function getSocketIoServerToken()
+    {
+        return $this->socketIoServerToken;
+    }
+    
+    public function setSocketIoServerToken($token)
+    {
+        $this->socketIoServerToken = $token;
+        
+        return $this;
+    }
+    
+    public function getSocketIoApiTokenName()
+    {
+        return $this->socketIoApiTokenName;
+    }
+    
+    public function setSocketIoApiTokenName($name)
+    {
+        $this->socketIoApiTokenName = $name;
+        
+        return $this;
     }
     
 }

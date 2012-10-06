@@ -9,13 +9,12 @@ var eventEmitter = new eventEmitter2({
 var 
     config = require('./config'),
 
-    request = require('request'), 
-    async = require('async'), 
+    request = require('request'),  
     queryString = require('querystring'),
     bodyParser = require('connect-hopeful-body-parser'),
     
-    requestHandler = require('./requestHandler')(eventEmitter, bodyParser),
-    requestToBridge = require('./requestToBridge')(request, async, queryString),
+    requestHandler = require('./requestHandler')(eventEmitter, config.api.tokens, bodyParser),
+    requestToBridge = require('./requestToBridge')(request, queryString),
     
     socketEvents = require('./socketEvents')(requestToBridge),
     eventListeners = require('./eventListeners')(eventEmitter),
@@ -27,8 +26,31 @@ var
 requestHandler.setIo(io);
 eventListeners.register();
 
-io.sockets.on('connection', function(socket){
-	socketEvents.register(socket);
+io.set('authorization', function(handshakeData, cb){
+    console.log(handshakeData);
+    var query = handshakeData.query;
+    
+    if(!query.name || !query.token || !query.identification){
+        return cb('parameters invalid', false);
+    }
+    
+    var tokens = config.api.tokens;
+    if(!tokens[query.name] || tokens[query.name]['client'] != query.token){
+        return cb('access denied', false);
+    }
+    
+    var token = tokens[query.name];
+    
+    handshakeData.bridgeUri = token.bridgeUri;
+    handshakeData.identification = query.identification;
+    
+    cb(null, true);
 });
+
+for(apiName in config.api.tokens){
+    io.of('/'+apiName).on('connection', function(socket){
+        socketEvents.register(socket);
+    });
+}
 
 server.listen(config.socket.port);

@@ -7,17 +7,12 @@ $bridge = require '../app/service.php';
 
 session_start();
 
+$identification = hash('sha512', session_id());
+
 ?>
 <script type="text/javascript" src="<?=$bridge->getSocketIoClientUri(); ?>"></script>
 <script type="text/javascript">
-    var socket = io.connect('<?=$bridge->getSocketIoServerUri();?>');
-    
-    socket.emit('bridge.connect', '<?=$bridge->getSocketBridgeUri()?>', '<?=session_id()?>', function(err, result){
-        if(err){
-            return alert(err);
-        }
-        console.log(JSON.parse(result));
-    });
+    var socket = io.connect('<?=$bridge->getSocketIoServerConnectionUri($identification);?>');
     
     socket.on('demo.event', function(paraA, paraB){
         console.log(paraA);

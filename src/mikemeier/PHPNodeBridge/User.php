@@ -13,16 +13,16 @@ class User
     /**
      * @var string 
      */
-    protected $sessionId;
+    protected $identification;
     
     /**
      * @param string $socketId
-     * @param string $sessionId 
+     * @param string $identification 
      */
-    public function __construct($socketId, $sessionId)
+    public function __construct($socketId, $identification)
     {
         $this->socketId = $socketId;
-        $this->sessionId = $sessionId;
+        $this->identification = $identification;
     }
     
     /**
@@ -36,9 +36,14 @@ class User
     /**
      * @return string 
      */
-    public function getSessionId()
+    public function getIdentification()
     {
-        return $this->sessionId;
+        return $this->identification;
+    }
+    
+    public function __toString()
+    {
+        return 'Socket: '.$this->getSocketId().'/Id: '. $this->getIdentification();
     }
     
 }

@@ -77,12 +77,16 @@ class Bridge
         return $this->config->getSocketIoServerUri();
     }
     
-    /**
-     * @return string
-     */
-    public function getSocketBridgeUri()
+    public function getSocketIoServerConnectionUri($clientIdentification)
     {
-        return $this->config->getSocketBridgeUri();
+        $paras = array(
+            'name' => $this->config->getSocketIoApiTokenName(),
+            'token' => $this->config->getSocketIoClientToken(),
+            'identification' => $clientIdentification
+        );
+        
+        return $this->getSocketIoServerUri().'/'. $this->config->getSocketIoApiTokenName() 
+            .'?'.http_build_query($paras);
     }
     
     /**
@@ -98,11 +102,13 @@ class Bridge
         $response = new Response();
         
         $eventName = isset($data['event']) ? $data['event'] : null;
-        $socketId = isset($data['socketId']) ? $data['socketId'] : null;
-        $sessionId = isset($data['sessionId']) ? $data['sessionId'] : null;
         $paras = isset($data['data']) ? (array)$data['data'] : array();
         
-        $event = new Event($response, $eventName, $socketId, $sessionId, $paras);
+        $socketId = isset($data['socketId']) ? $data['socketId'] : null;
+        $identification = isset($data['identification']) ? $data['identification'] : null;
+        
+        $user = new User($socketId, $identification);
+        $event = new Event($response, $user, $eventName, $paras);
         
         $this->eventDispatcher->dispatch($eventName, $event);
         

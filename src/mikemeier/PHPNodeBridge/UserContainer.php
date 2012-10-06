@@ -53,15 +53,15 @@ class UserContainer
     }
     
     /**
-     * @param string $sessionId
+     * @param string $identification
      * @return User[]
      */
-    public function getBySessionId($sessionId)
+    public function getByIdentification($identification)
     {
         $users = array();
         
         foreach($this->users as $user){
-            if($sessionId == $user->getSessionId()){
+            if($identification == $user->getIdentification()){
                 $users[] = $user;
             }
         }
@@ -80,12 +80,12 @@ class UserContainer
     }
     
     /**
-     * @param string $socketId
+     * @param User $user
      * @return UserContainer 
      */
-    public function removeBySocketId($socketId)
+    public function remove(User $user)
     {
-        unset($this->users[$socketId]);
+        unset($this->users[$user->getSocketId()]);
         
         return $this;
     }

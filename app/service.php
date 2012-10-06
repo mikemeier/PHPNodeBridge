@@ -5,7 +5,10 @@
     $config = new \mikemeier\PHPNodeBridge\Config(array(
         'socketIoClientUri' => 'http://node.local:8080/socket.io/socket.io.js',
         'socketIoServerUri' => 'http://node.local:8080',
-        'socketBridgeUri' => 'http://node.local/bridge.php'
+        
+        'socketIoApiTokenName' => 'demo',
+        'socketIoClientToken' => 'client',
+        'socketIoServerToken' => 'server'
     ));
     
     $transport = new \mikemeier\PHPNodeBridge\Transport($config);
@@ -14,16 +17,19 @@
     $userContainer = new mikemeier\PHPNodeBridge\UserContainer($store);
     
     $eventDispatcher = new Symfony\Component\EventDispatcher\EventDispatcher();
+    
+    $bridge = new \mikemeier\PHPNodeBridge\Bridge($config, $userContainer, $transport, $eventDispatcher);
+    
     $eventDispatcher->addListener('bridge.connection', function(\mikemeier\PHPNodeBridge\Event $event)use($userContainer){
-        $user = new mikemeier\PHPNodeBridge\User(
-            $event->getSocketId(),
-            $event->getSessionId()
-        );
+        $user = $event->getUser();
+        $event->addResponseData('result', 'add user: '. $user);
         $userContainer->add($user);
     });
     
     $eventDispatcher->addListener('bridge.disconnection', function(\mikemeier\PHPNodeBridge\Event $event)use($userContainer){
-        $userContainer->removeBySocketId($event->getSocketId());
+        $user = $event->getUser();
+        $event->addResponseData('result', 'remove user: '. $user);
+        $userContainer->remove($user);
     });
     
-    return new \mikemeier\PHPNodeBridge\Bridge($config, $userContainer, $transport, $eventDispatcher);
+    return $bridge;

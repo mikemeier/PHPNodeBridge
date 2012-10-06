@@ -11,19 +11,14 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     protected $response;
     
     /**
+     * @var User 
+     */
+    protected $user;
+    
+    /**
      * @var string 
      */
     protected $name;
-    
-    /**
-     * @var string 
-     */
-    protected $socketId;
-    
-    /**
-     * @var string 
-     */
-    protected $sessionId;
     
     /**
      * @var array 
@@ -32,17 +27,15 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     
     /**
      * @param Response $response
+     * @param User $user
      * @param string $name
-     * @param string $socketId
-     * @param string $sessionId
      * @param array $paras
      */
-    public function __construct(Response $response, $name, $socketId, $sessionId, array $paras = array())
+    public function __construct(Response $response, User $user, $name, array $paras = array())
     {
         $this->response = $response;
         $this->name = $name;
-        $this->socketId = $socketId;
-        $this->sessionId = $sessionId;
+        $this->user = $user;
         $this->paras = $paras;
     }
     
@@ -59,19 +52,11 @@ class Event extends \Symfony\Component\EventDispatcher\Event
     }
     
     /**
-     * @return string
+     * @return User
      */
-    public function getSocketId()
+    public function getUser()
     {
-        return $this->socketId;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getSessionId()
-    {
-        return $this->sessionId;
+        return $this->user;
     }
     
     /**

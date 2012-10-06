@@ -1,5 +1,6 @@
-function RequestHandler(eventEmitter, bodyParser){
+function RequestHandler(eventEmitter, tokens, bodyParser){
     this.eventEmitter = eventEmitter;
+    this.tokens = tokens;
     this.bodyParser = bodyParser;
     this.io = null;
 };
@@ -34,6 +35,7 @@ RequestHandler.prototype = {
         var self = this;
         
         var eventEmitter = this.eventEmitter;
+        var tokens = this.tokens;
         var bodyParser = this.bodyParser;
         var mergeRecursive = this.mergeRecursive;
         
@@ -45,6 +47,18 @@ RequestHandler.prototype = {
                 
                 if(!req.body){
                     res.write(JSON.stringify({error: 'no data given'}));
+                    res.end();
+                    return;
+                }
+                
+                if(!req.body.name || !req.body.token){
+                    res.write(JSON.stringify({error: 'parameters invalid'}));
+                    res.end();
+                    return;
+                }
+                
+                if(!tokens[req.body.name] || tokens[req.body.name]['server'] != req.body.token){
+                    res.write(JSON.stringify({error: 'access denied'}));
                     res.end();
                     return;
                 }
@@ -66,6 +80,7 @@ RequestHandler.prototype = {
                     
                     var receivedResults = 0;
                     var resData = {};
+                    
                     eventEmitter.emit(eventEmitterEventName, io, req, res, function(err, data){
                         if(err){
                             res.write(JSON.stringify({error: err}));
@@ -91,6 +106,6 @@ RequestHandler.prototype = {
     
 };
 
-module.exports = function(eventEmitter, bodyParser){
-    return new RequestHandler(eventEmitter, bodyParser);
+module.exports = function(eventEmitter, tokens, bodyParser){
+    return new RequestHandler(eventEmitter, tokens, bodyParser);
 }

@@ -6,12 +6,8 @@ SocketEvents.prototype = {
     
     register: function(socket){
         var requestToBridge = this.requestToBridge;
-        
-        socket.on('bridge.connect', function(bridgeUri, sessionId, cb){
-            socket.set('bridgeUri', bridgeUri);
-            socket.set('sessionId', sessionId);
-
-            requestToBridge.execute(socket, 'bridge.connection', {}, cb);
+        requestToBridge.execute(socket, 'bridge.connection', {}, function(err, result){
+            console.log(result);
         });
 
         socket.on('bridge.message', function(){
@@ -33,7 +29,9 @@ SocketEvents.prototype = {
         });
 
         socket.on('disconnect', function(){
-            requestToBridge.execute(socket, 'bridge.disconnection');
+            requestToBridge.execute(socket, 'bridge.disconnection', {}, function(err, result){
+                console.log(result);
+            });
         });
     }
     
