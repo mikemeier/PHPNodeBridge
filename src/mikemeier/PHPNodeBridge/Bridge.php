@@ -2,7 +2,7 @@
 
 namespace mikemeier\PHPNodeBridge;
 
-use mikemeier\PHPNodeBridge\Transport;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Bridge
 {
@@ -23,17 +23,26 @@ class Bridge
     protected $transport;
     
     /**
+     * @var EventDispatcher 
+     */
+    protected $eventDispatcher;
+
+    /**
+     * @param Config $config
      * @param UserContainer $userContainer
-     * @param Transport
+     * @param Transport $transport
+     * @param EventDispatcher $eventDispatcher
      */
     public function __construct(
         Config $config,
         UserContainer $userContainer,
-        Transport $transport
+        Transport $transport,
+        EventDispatcher $eventDispatcher
     ){
         $this->config = $config;
         $this->userContainer = $userContainer;
         $this->transport = $transport;
+        $this->eventDispatcher = $eventDispatcher;
     }
     
     /**
@@ -66,6 +75,38 @@ class Bridge
     public function getSocketIoServerUri()
     {
         return $this->config->getSocketIoServerUri();
+    }
+    
+    /**
+     * @return string
+     */
+    public function getSocketBridgeUri()
+    {
+        return $this->config->getSocketBridgeUri();
+    }
+    
+    /**
+     * @param array $data
+     * @return Response
+     */
+    public function process(array $data = array())
+    {
+        if(!$data){
+            return new Response("No data received");
+        }
+        
+        $response = new Response();
+        
+        $eventName = isset($data['event']) ? $data['event'] : null;
+        $socketId = isset($data['socketId']) ? $data['socketId'] : null;
+        $sessionId = isset($data['sessionId']) ? $data['sessionId'] : null;
+        $paras = isset($data['data']) ? (array)$data['data'] : array();
+        
+        $event = new Event($response, $eventName, $socketId, $sessionId, $paras);
+        
+        $this->eventDispatcher->dispatch($eventName, $event);
+        
+        return $response;
     }
     
     /**

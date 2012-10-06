@@ -11,6 +11,16 @@ class Config
     protected $socketIoClientUri;
     
     /**
+     * @var string 
+     */
+    protected $socketIoServerUri;
+    
+    /**
+     * @var string 
+     */
+    protected $socketBridgeUri;
+    
+    /**
      * @param array $options
      * @throws \InvalidArgumentException 
      */
@@ -26,6 +36,16 @@ class Config
         }
     }
     
+    public function setSocketBridgeUri($uri)
+    {
+        $this->socketBridgeUri = $uri;
+    }
+    
+    public function getSocketBridgeUri()
+    {
+        return $this->socketBridgeUri;
+    }
+    
     public function setSocketIoClientUri($uri)
     {
         $this->socketIoClientUri = $uri;
@@ -38,12 +58,12 @@ class Config
     
     public function setSocketIoServerUri($uri)
     {
-        $this->socketIoClientUri = $uri;
+        $this->socketIoServerUri = $uri;
     }
     
     public function getSocketIoServerUri()
     {
-        return $this->socketIoClientUri;
+        return $this->socketIoServerUri;
     }
     
 }

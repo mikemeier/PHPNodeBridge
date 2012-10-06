@@ -29,6 +29,12 @@ class Store
     
     public function __destruct()
     {
+        $dir = dirname($this->file);
+        
+        if(!is_dir($dir) || !is_writable($dir)){
+            throw new \InvalidArgumentException("Dir '$dir' not valid");
+        }
+        
         file_put_contents($this->file, serialize($this->data));
     }
     
