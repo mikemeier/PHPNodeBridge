@@ -14,8 +14,8 @@
     
     "require": {
         "php": ">=5.3.0",
-        "symfony/config": "dev-master",
-        "symfony/event-dispatcher": "dev-master"
+        "symfony/config": "*",
+        "symfony/event-dispatcher": "*"
     },
     
     "autoload": {
