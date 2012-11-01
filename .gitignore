@@ -4,3 +4,4 @@ nodejs/npm-debug.log
 composer.phar
 nbproject
 app/cache
+.idea
