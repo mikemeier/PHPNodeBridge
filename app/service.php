@@ -14,9 +14,9 @@
     $transport = new \mikemeier\PHPNodeBridge\Transport($config);
     $store = new \mikemeier\PHPNodeBridge\Store(__DIR__.'/cache/userstore.txt');
     
-    $userContainer = new mikemeier\PHPNodeBridge\UserContainer($store);
+    $userContainer = new \mikemeier\PHPNodeBridge\UserContainer($store);
     
-    $eventDispatcher = new Symfony\Component\EventDispatcher\EventDispatcher();
+    $eventDispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
     
     $bridge = new \mikemeier\PHPNodeBridge\Bridge($config, $userContainer, $transport, $eventDispatcher);
     
