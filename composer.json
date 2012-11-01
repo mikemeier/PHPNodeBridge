@@ -3,7 +3,7 @@
     "name":         "mikemeier/php-node-bridge",
     "description":  "Bridge for PHP to NodeJS",
     "keywords":     ["php", "nodejs", "node", "bridge"],
-    "type":         "library",
+    "type":         "symfony-bundle",
     "license":      "MIT",
     "authors": [
         {
@@ -19,8 +19,10 @@
     },
     
     "autoload": {
-        "psr-0": { "mikemeier\\PHPNodeBridge": "src" }
+        "psr-0": { "mikemeier\\PHPNodeBridge": "" }
     },
     
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+
+    "target-dir": "mikemeier/PHPNodeBridge"
 }
