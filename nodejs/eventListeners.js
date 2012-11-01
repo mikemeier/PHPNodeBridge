@@ -12,7 +12,7 @@ EventListeners.prototype = {
         });
         
         eventEmitter.on('bridge.request.user.message', function(io, req, res, next){
-            io.sockets.every(function(socket){
+            io.sockets.clients().every(function(socket){
                 console.log(socket.handshakeData);
             });
             
