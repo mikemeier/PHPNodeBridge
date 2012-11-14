@@ -1,12 +1,15 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge;
+namespace mikemeier\PHPNodeBridge\Service;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 class Bridge
 {
-    
+
     /**
      * @var Config 
      */
@@ -76,7 +79,11 @@ class Bridge
     {
         return $this->config->getSocketIoServerUri();
     }
-    
+
+    /**
+     * @param $clientIdentification
+     * @return string
+     */
     public function getSocketIoServerConnectionUri($clientIdentification)
     {
         $paras = array(
@@ -93,13 +100,11 @@ class Bridge
      * @param array $data
      * @return Response
      */
-    public function process(array $data = array())
+    public function process(Request $request, Response $response = null)
     {
-        if(!$data){
-            return new Response("No data received");
+        if(null === $response){
+            $response = new Response();
         }
-        
-        $response = new Response();
         
         $eventName = isset($data['event']) ? $data['event'] : null;
         $paras = isset($data['data']) ? (array)$data['data'] : array();
@@ -108,7 +113,7 @@ class Bridge
         $identification = isset($data['identification']) ? $data['identification'] : null;
         
         $user = new User($socketId, $identification);
-        $event = new Event($response, $user, $eventName, $paras);
+        $event = new Event($request, $response, $user, $eventName, $paras);
         
         $this->eventDispatcher->dispatch($eventName, $event);
         

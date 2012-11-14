@@ -19,7 +19,7 @@
     },
     
     "autoload": {
-        "psr-0": { "mikemeier\\PHPNodeBridge": "" }
+        "psr-0": { "mikemeier\\PHPNodeBridge": "src/" }
     },
     
     "minimum-stability": "dev",

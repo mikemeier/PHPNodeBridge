@@ -1,6 +1,6 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge;
+namespace mikemeier\PHPNodeBridge\Service;
 
 class UserContainer
 {

@@ -1,6 +1,8 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge;
+namespace mikemeier\PHPNodeBridge\Service;
+
+use Symfony\Component\Filesystem\Filesystem;
 
 class Store
 {
@@ -26,11 +28,19 @@ class Store
             $this->data = unserialize(file_get_contents($file));
         }
     }
-    
+
+    /**
+     *
+     */
     public function __destruct()
     {
         $dir = dirname($this->file);
         
+        if(!is_dir($dir) || !is_writable($dir)){
+            $filesystem = new Filesystem();
+            $filesystem->mkdir($dir);
+        }
+
         if(!is_dir($dir) || !is_writable($dir)){
             throw new \InvalidArgumentException("Dir '$dir' not valid");
         }
