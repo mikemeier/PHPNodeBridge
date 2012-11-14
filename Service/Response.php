@@ -1,43 +1,43 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Service;
+ namespace mikemeier\PHPNodeBridge\Service;
 
-class Response
-{
-    
-    /**
-     * @var array 
-     */
-    protected $data;
-    
-    /**
-     * @param array $content
-     */
-    public function __construct(array $data = array())
-    {
-        $this->data = $data;
-    }
-    
-    /**
-     * @param string $namespace
-     * @param string $key
-     * @param mixed $value
-     */
-    public function addData($namespace, $key, $value)
-    {
-        if(!isset($this->data[$namespace])){
-            $this->data[$namespace] = array();
-        }
-        
-        $this->data[$namespace][$key] = $value;
-    }
-    
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return json_encode($this->data);
-    }
-    
-}
+ class Response
+ {
+     /**
+      * @var string
+      */
+     protected $eventName;
+
+     /**
+      * @var Message[]
+      */
+     protected $messages = array();
+
+     /**
+      * @param string $eventName
+      */
+     public function __construct($eventName)
+     {
+         $this->eventName = $eventName;
+     }
+
+     /**
+      * @param Message $message
+      * @return Response
+      */
+     public function addMessage(Message $message)
+     {
+        $this->messages[] = $message;
+
+         return $this;
+     }
+
+     /**
+      * @return Message[]
+      */
+     public function getMessages()
+     {
+         return $this->messages;
+     }
+ }

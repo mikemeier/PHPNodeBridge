@@ -9,8 +9,11 @@ class Message
      * @var array 
      */
     protected $data;
-    
-    public function __construct(array $data = array())
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
     {
         $this->data = $data;
     }

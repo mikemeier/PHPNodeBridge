@@ -3,9 +3,7 @@
 namespace mikemeier\PHPNodeBridge\Service;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
-
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class Bridge
 {
@@ -30,6 +28,8 @@ class Bridge
      */
     protected $eventDispatcher;
 
+    const INTERNAL_EVENT_PREFIX = 'mikemeier_php_node_bridge';
+
     /**
      * @param Config $config
      * @param UserContainer $userContainer
@@ -46,6 +46,26 @@ class Bridge
         $this->userContainer = $userContainer;
         $this->transport = $transport;
         $this->eventDispatcher = $eventDispatcher;
+
+        $this->registerEventListeners();
+    }
+
+    protected function registerEventListeners()
+    {
+        $self = $this;
+        $eventDispatcher = $this->eventDispatcher;
+
+        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.connection', function(Event $event)use($self){
+            $user = $event->getUser();
+            $event->addResponseData('result', 'add user: '. $user);
+            $self->getUserContainer()->add($user);
+        });
+
+        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.disconnection', function(Event $event)use($self){
+            $user = $event->getUser();
+            $event->addResponseData('result', 'remove user: '. $user);
+            $self->getUserContainer()->remove($user);
+        });
     }
     
     /**
@@ -95,29 +115,46 @@ class Bridge
         return $this->getSocketIoServerUri().'/'. $this->config->getSocketIoApiTokenName() 
             .'?'.http_build_query($paras);
     }
-    
+
     /**
-     * @param array $data
-     * @return Response
+     * @param Request $request
+     * @param Response $response
+     * @return Response[]
      */
-    public function process(Request $request, Response $response = null)
+    public function process(Request $request)
     {
-        if(null === $response){
-            $response = new Response();
+        $responses = array();
+
+        $eventsArray = $request->get('events');
+        if(!is_array($eventsArray) || !$eventsArray){
+            return $responses;
         }
-        
-        $eventName = isset($data['event']) ? $data['event'] : null;
-        $paras = isset($data['data']) ? (array)$data['data'] : array();
-        
-        $socketId = isset($data['socketId']) ? $data['socketId'] : null;
-        $identification = isset($data['identification']) ? $data['identification'] : null;
-        
+
+        $socketId = $request->get('socketId');
+        $identification = $request->get('identification');
         $user = new User($socketId, $identification);
-        $event = new Event($request, $response, $user, $eventName, $paras);
-        
-        $this->eventDispatcher->dispatch($eventName, $event);
-        
-        return $response;
+
+        foreach($eventsArray as $eventArray){
+            $eventName = isset($eventArray['name']) ? $eventArray['name'] : null;
+
+            if($eventName){
+                if(substr($eventName, 0, strlen(self::INTERNAL_EVENT_PREFIX)) === self::INTERNAL_EVENT_PREFIX){
+                    $dispatchEventName = $eventName;
+                }else{
+                    $dispatchEventName = $this->config->getEventNamePrefix().'.'.$eventName;
+                }
+
+                $dispatchEventParameters = isset($eventArray['parameters']) && is_array($eventArray['parameters']) ?
+                    $eventArray['parameters'] : array();
+
+                $response[] = new Response($dispatchEventName);
+                $event = new Event($request, $response, $user, $dispatchEventName, $dispatchEventParameters);
+
+                $this->eventDispatcher->dispatch($dispatchEventName, $event);
+            }
+        }
+
+        return $responses;
     }
     
     /**

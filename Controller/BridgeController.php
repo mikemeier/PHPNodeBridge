@@ -1,6 +1,6 @@
 <?php
 
-namespace mikemeier\DemoPHPNodeBridge\Controller;
+namespace mikemeier\PHPNodeBridge\Controller;
 
 use mikemeier\PHPNodeBridge\Service\Bridge;
 
@@ -11,18 +11,22 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-/**
- * @Route("/bridge")
- */
 class BridgeController extends Controller
 {
 
     /**
-     * @Route("/call", name="bridge_call")
+     * @Route("/call", name="mikemeier_phpnodebridge_call")
      */
     public function callAction()
     {
-        return $this->getBridge()->process($this->getRequest());
+        $content = array();
+        foreach($this->getBridge()->process($this->getRequest()) as $eventName => $response){
+            $content[$eventName] = $response->getMessages();
+        }
+
+        return new Response(json_encode($content), 200, array(
+            'Content-Type' => 'application/json'
+        ));
     }
 
     /**

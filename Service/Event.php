@@ -2,9 +2,6 @@
 
 namespace mikemeier\PHPNodeBridge\Service;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\EventDispatcher\Event as SymfonyEvent;
 
 class Event extends SymfonyEvent
@@ -31,35 +28,24 @@ class Event extends SymfonyEvent
     protected $name;
 
     /**
-     * @param Request $request
+     * @var array
+     */
+    protected $parameters = array();
+
+    /**
      * @param Response $response
      * @param User $user
      * @param $name
+     * @param array $parameters
      */
-    public function __construct(Request $request, Response $response, User $user, $name)
+    public function __construct(Response $response, User $user, $name, array $parameters = array())
     {
-        $this->request = $request;
+        $this->setName($name);
         $this->response = $response;
         $this->user = $user;
-        $this->name = $name;
+        $this->parameters = $parameters;
     }
 
-    /**
-     * @return Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * @return Response
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-    
     /**
      * @return User
      */
@@ -69,11 +55,14 @@ class Event extends SymfonyEvent
     }
 
     /**
-     * @return string
+     * @param Message $message
+     * @return Event
      */
-    public function getName()
+    public function addMessage(Message $message)
     {
-        return $this->name;
+        $this->response->addMessage($message);
+
+        return $this;
     }
     
 }
