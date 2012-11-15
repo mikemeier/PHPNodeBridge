@@ -40,10 +40,13 @@ class User
     {
         return $this->identification;
     }
-    
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return 'Socket: '.$this->getSocketId().'/Id: '. $this->getIdentification();
+        return 'User with Socket: '. $this->getSocketId() .' and Id: '. $this->getIdentification();
     }
     
 }

@@ -21,7 +21,10 @@ class BridgeController extends Controller
     {
         $content = array();
         foreach($this->getBridge()->process($this->getRequest()) as $eventName => $response){
-            $content[$eventName] = $response->getMessages();
+            $content[$eventName] = array();
+            foreach($response->getMessages() as $message){
+                $content[$eventName][] = $message->getData();
+            }
         }
 
         return new Response(json_encode($content), 200, array(

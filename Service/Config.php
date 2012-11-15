@@ -161,7 +161,7 @@ class Config
      */
     public function getEventNamePrefix()
     {
-        return $this->getEventNamePrefix;
+        return $this->eventNamePrefix;
     }
     
 }

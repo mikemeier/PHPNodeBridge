@@ -55,15 +55,15 @@ class Bridge
         $self = $this;
         $eventDispatcher = $this->eventDispatcher;
 
-        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.connection', function(Event $event)use($self){
+        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.connection', function(Event $event)use($self){
             $user = $event->getUser();
-            $event->addResponseData('result', 'add user: '. $user);
+            $event->addMessage(new Message(array('message' => 'register user '. $user)));
             $self->getUserContainer()->add($user);
         });
 
-        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.disconnection', function(Event $event)use($self){
+        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.disconnection', function(Event $event)use($self){
             $user = $event->getUser();
-            $event->addResponseData('result', 'remove user: '. $user);
+            $event->addMessage(new Message(array('message' => 'unregister user '. $user)));
             $self->getUserContainer()->remove($user);
         });
     }
@@ -125,16 +125,25 @@ class Bridge
     {
         $responses = array();
 
-        $eventsArray = $request->get('events');
-        if(!is_array($eventsArray) || !$eventsArray){
+        print_r($request->request->all());
+
+        $eventsJSON = $request->request->get('events');
+        if(!$eventsJSON){
             return $responses;
         }
 
-        $socketId = $request->get('socketId');
-        $identification = $request->get('identification');
+        $events = json_decode($eventsJSON, true);
+        if(!$events){
+            return $responses;
+        }
+
+        print_r($events);
+
+        $socketId = $request->request->get('socketId');
+        $identification = $request->request->get('identification');
         $user = new User($socketId, $identification);
 
-        foreach($eventsArray as $eventArray){
+        foreach($events as $eventArray){
             $eventName = isset($eventArray['name']) ? $eventArray['name'] : null;
 
             if($eventName){
@@ -147,8 +156,9 @@ class Bridge
                 $dispatchEventParameters = isset($eventArray['parameters']) && is_array($eventArray['parameters']) ?
                     $eventArray['parameters'] : array();
 
-                $response[] = new Response($dispatchEventName);
-                $event = new Event($request, $response, $user, $dispatchEventName, $dispatchEventParameters);
+                $response = new Response($dispatchEventName);
+                $event = new Event($response, $user, $dispatchEventName, $dispatchEventParameters);
+                $responses[] = $response;
 
                 $this->eventDispatcher->dispatch($dispatchEventName, $event);
             }
