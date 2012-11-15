@@ -146,7 +146,7 @@ class Config
     }
 
     /**
-     * @param sting $prefix
+     * @param string $prefix
      * @return Config
      */
     public function setEventNamePrefix($prefix)

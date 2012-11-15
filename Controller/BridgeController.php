@@ -19,11 +19,16 @@ class BridgeController extends Controller
      */
     public function callAction()
     {
-        $content = array();
-        foreach($this->getBridge()->process($this->getRequest()) as $eventName => $response){
-            $content[$eventName] = array();
+        $content = array(
+            'events' => array()
+        );
+
+        foreach($this->getBridge()->process($this->getRequest()) as $response){
+            $eventName = $response->getEventName();
+            $content['events'][$eventName] = array();
+
             foreach($response->getMessages() as $message){
-                $content[$eventName][] = $message->getData();
+                $content['events'][$eventName][$message->getName()] = $message->getData();
             }
         }
 

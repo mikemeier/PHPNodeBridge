@@ -23,6 +23,14 @@
      }
 
      /**
+      * @return string
+      */
+     public function getEventName()
+     {
+         return $this->eventName;
+     }
+
+     /**
       * @param Message $message
       * @return Response
       */

@@ -8,11 +8,6 @@ class Event extends SymfonyEvent
 {
 
     /**
-     * @var Request
-     */
-    protected $request;
-    
-    /**
      * @var Response 
      */
     protected $response;

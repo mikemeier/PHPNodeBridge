@@ -57,13 +57,16 @@ class Bridge
 
         $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.connection', function(Event $event)use($self){
             $user = $event->getUser();
-            $event->addMessage(new Message(array('message' => 'register user '. $user)));
+            $user->getIdentification();
+            session_id($user->getIdentification());
+
+            $event->addMessage(new Message('usercontainer', 'add user '. $user));
             $self->getUserContainer()->add($user);
         });
 
         $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.disconnection', function(Event $event)use($self){
             $user = $event->getUser();
-            $event->addMessage(new Message(array('message' => 'unregister user '. $user)));
+            $event->addMessage(new Message('usercontainer', 'remove user '. $user));
             $self->getUserContainer()->remove($user);
         });
     }
@@ -118,26 +121,21 @@ class Bridge
 
     /**
      * @param Request $request
-     * @param Response $response
      * @return Response[]
      */
     public function process(Request $request)
     {
         $responses = array();
 
-        print_r($request->request->all());
-
         $eventsJSON = $request->request->get('events');
         if(!$eventsJSON){
             return $responses;
         }
 
-        $events = json_decode($eventsJSON, true);
+        $events = @json_decode($eventsJSON, true);
         if(!$events){
             return $responses;
         }
-
-        print_r($events);
 
         $socketId = $request->request->get('socketId');
         $identification = $request->request->get('identification');
@@ -166,11 +164,11 @@ class Bridge
 
         return $responses;
     }
-    
+
     /**
      * @param Message $message
      * @param User $user
-     * @return MessageResult
+     * @return mixed
      */
     public function sendMessageToUser(Message $message, User $user)
     {
@@ -180,27 +178,25 @@ class Bridge
     /**
      * @param Message $message
      * @param array $users
-     * @return MessageResult[]
+     * @return mixed
      */
     public function sendMessageToUsers(Message $message, array $users)
     {
         return $this->transport->sendMessageToUsers($message, $users);
     }
-    
+
     /**
      * @param array $messages
      * @param User $user
-     * @return MessageResult[]
      */
     public function sendMessagesToUser(array $messages, User $user)
     {
         return $this->transport->sendMessagesToUser($messages, $user);
     }
-    
+
     /**
      * @param array $messages
      * @param array $users
-     * @return MessageResult[] 
      */
     public function sendMessagesToUsers(array $messages, array $users)
     {

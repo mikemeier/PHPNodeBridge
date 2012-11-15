@@ -21,9 +21,10 @@ class UserContainer
     protected $users = array();
     
     const STORE_KEY = 'phpnodebridge.users';
-    
+
     /**
-     * @param array $users 
+     * @param Store $store
+     * @param string $storeKey
      */
     public function __construct(Store $store, $storeKey = self::STORE_KEY)
     {
@@ -45,7 +46,7 @@ class UserContainer
     }
     
     /**
-     * @return Users[] 
+     * @return User[]
      */
     public function getAll()
     {

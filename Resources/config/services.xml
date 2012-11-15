@@ -13,7 +13,7 @@
             <parameter key="socketIoApiTokenName">demo</parameter>
             <parameter key="socketIoClientToken">client</parameter>
             <parameter key="socketIoServerToken">server</parameter>
-            <parameter key="eventNamePrefix">phpnodebridge</parameter>
+            <parameter key="eventNamePrefix">mikemeier_php_node_bridge</parameter>
         </parameter>
         <parameter key="mikemeier_php_node_bridge.store">%kernel.root_dir%/cache/phpnodebridge/userstore.txt</parameter>
     </parameters>
@@ -43,8 +43,8 @@
         </service>
 
         <service id="mikemeier_php_node_bridge.twigextension" class="mikemeier\PHPNodeBridge\Twig\TwigExtension">
-            <argument type="service" id="mikemeier_php_node_bridge.bridge"></argument>
-            <argument type="service" id="session"></argument>
+            <argument type="service" id="mikemeier_php_node_bridge.bridge" />
+            <argument type="service" id="session" />
             <tag name="twig.extension" />
         </service>
     </services>

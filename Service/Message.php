@@ -4,22 +4,36 @@ namespace mikemeier\PHPNodeBridge\Service;
 
 class Message
 {
-    
     /**
-     * @var array 
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @var mixed
      */
     protected $data;
 
     /**
-     * @param array $data
+     * @param string $name
+     * @param mixed $data
      */
-    public function __construct(array $data)
+    public function __construct($name, $data)
     {
+        $this->name = $name;
         $this->data = $data;
     }
-    
+
     /**
-     * @return array
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return mixed
      */
     public function getData()
     {
