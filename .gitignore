@@ -13,7 +13,7 @@
 /web/img/
 
 composer.phar
-comsposer.lock
+composer.lock
 
 .externalToolBuilders
 
