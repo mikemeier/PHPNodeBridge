@@ -145,10 +145,6 @@ class Bridge
         $identification = $request->request->get('identification');
 
         $user = new User($socketId, $this->identificationStrategy->decryptIdentification($identification));
-        if(null === $this->userContainer->getBySocketId($socketId)){
-            $this->userContainer->add($user);
-        }
-
         $eventNamePrefix = $this->config->getEventNamePrefix();
 
         foreach($events as $eventArray){
@@ -223,6 +219,10 @@ class Bridge
             $user = $event->getUser();
             $event->addMessage(new Message('bridge', 'remove user '. $user));
             $self->getUserContainer()->remove($user);
+        });
+
+        $this->addEventListener('server.restart', function(Event $event)use($self){
+            $self->getUserContainer()->clear();
         });
     }
     

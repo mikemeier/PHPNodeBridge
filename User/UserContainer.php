@@ -39,6 +39,14 @@ class UserContainer
     {
         $this->store->set($this->storeKey, $this->users);
     }
+
+    /**
+     * @return UserContainer
+     */
+    public function clear()
+    {
+        $this->users = array();
+    }
     
     /**
      * @param User $user 
