@@ -30,7 +30,7 @@ class BridgeControllerTest extends WebTestCase
         $eventResponse = $this->validateAllInOne('user.connection', array(), 'bridge', 'string');
 
         $this->assertContains(self::SOCKET_ID, $eventResponse, 'Socket-Id not found');
-        $this->assertContains('user', $eventResponse, 'User not found');
+        $this->assertContains('socket', $eventResponse, 'User not found');
         $this->assertContains('add', $eventResponse, 'Add not found');
     }
 
@@ -42,7 +42,7 @@ class BridgeControllerTest extends WebTestCase
         $eventResponse = $this->validateAllInOne('user.disconnection', array(), 'bridge', 'string');
 
         $this->assertContains(self::SOCKET_ID, $eventResponse, 'Socket-Id not found');
-        $this->assertContains('user', $eventResponse, 'User not found');
+        $this->assertContains('socket', $eventResponse, 'User not found');
         $this->assertContains('remove', $eventResponse, 'Remove not found');
     }
 
@@ -80,7 +80,7 @@ class BridgeControllerTest extends WebTestCase
      */
     protected function validateResponse(Response $response)
     {
-        $this->assertEquals('application/json', $response->headers->get('Content-Type'), 'Response is not application/json');
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'), 'Response is not application/json: '. $response->getContent());
 
         $content = @json_decode($response->getContent(), true);
 

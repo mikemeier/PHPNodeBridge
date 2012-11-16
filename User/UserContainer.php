@@ -53,7 +53,7 @@ class UserContainer
      */
     public function add(User $user)
     {
-        $this->users[$user->getSocketId()] = $user;
+        $this->users[$user->getIdentification()] = $user;
     }
     
     /**
@@ -66,29 +66,12 @@ class UserContainer
     
     /**
      * @param string $identification
-     * @return User[]
+     * @return User|null
      */
     public function getByIdentification($identification)
     {
-        $users = array();
-        
-        foreach($this->users as $user){
-            if($identification == $user->getIdentification()){
-                $users[] = $user;
-            }
-        }
-        
-        return $users;
-    }
-    
-    /**
-     * @param string $socketId
-     * @return User|null 
-     */
-    public function getBySocketId($socketId)
-    {
-        return isset($this->users[$socketId]) ? 
-            $this->users[$socketId] : null;
+        return isset($this->users[$identification]) ?
+            $this->users[$identification] : null;
     }
     
     /**
@@ -97,7 +80,7 @@ class UserContainer
      */
     public function remove(User $user)
     {
-        unset($this->users[$user->getSocketId()]);
+        unset($this->users[$user->getIdentification()]);
         
         return $this;
     }

@@ -26,12 +26,24 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->users = array(
-            'socketIdA' => new User('socketIdA', 'identificationA'),
-            'socketIdB' => new User('socketIdB', 'identificationB'),
-            'socketIdC' => new User('socketIdC', 'identificationC'),
-            'socketIdD' => new User('socketIdD', 'identificationD')
+        $usersArray = array(
+            'identificationA' => array(
+                'socketIdA'
+            ),
+            'identificationB' => array(
+                'socketIdB'
+            )
         );
+
+        $users = array();
+        foreach($usersArray as $identification => $sockets){
+            $user = new User($identification);
+            foreach($sockets as $socketId){
+                $user->addSocketId($socketId);
+            }
+            $users[$identification] = $user;
+        }
+        $this->users = $users;
 
         $store = $this->getMock('mikemeier\PHPNodeBridge\Store\StoreInterface');
 
@@ -81,9 +93,8 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetByIdentification()
     {
-        $user = $this->users['socketIdA'];
-
-        $this->assertContains($user, $this->object->getByIdentification('identificationA'));
+        $user = reset($this->users);
+        $this->assertSame($user, $this->object->getByIdentification($user->getIdentification()));
     }
 
     /**
@@ -103,21 +114,11 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers mikemeier\PHPNodeBridge\User\UserContainer::getBySocketId
-     */
-    public function testGetBySocketId()
-    {
-        $user = $this->users['socketIdA'];
-
-        $this->assertSame($user, $this->object->getBySocketId('socketIdA'));
-    }
-
-    /**
      * @covers mikemeier\PHPNodeBridge\User\UserContainer::remove
      */
     public function testRemove()
     {
-        $user = $this->users['socketIdA'];
+        $user = reset($this->users);
 
         $this->object->remove($user);
         $this->assertAttributeNotContains($user, 'users', $this->object);
