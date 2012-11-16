@@ -58,27 +58,6 @@ class Bridge
         $this->registerEventListeners();
     }
 
-    protected function registerEventListeners()
-    {
-        $self = $this;
-
-        $this->addEventListener('user.connection', function(Event $event)use($self){
-            $user = $event->getUser();
-            $event->addMessage(new Message('bridge', 'add user '. $user));
-            $self->getUserContainer()->add($user);
-        });
-
-        $this->addEventListener('user.disconnection', function(Event $event)use($self){
-            $user = $event->getUser();
-            $event->addMessage(new Message('bridge', 'remove user '. $user));
-            $self->getUserContainer()->remove($user);
-        });
-
-        $this->addEventListener('user.message', function(Event $event)use($self){
-            $event->addMessage(new Message('bridge', array('success' => true)));
-        });
-    }
-
     /**
      * @param $eventName
      * @param callable $listener
@@ -86,7 +65,10 @@ class Bridge
      */
     public function addEventListener($eventName, $listener, $priority = 0)
     {
-        $this->eventDispatcher->addListener($this->config->getEventNamePrefix().'.'.$eventName, $listener, $priority);
+        $eventNameWithPrefix = $this->config->getEventNamePrefix().'.'.$eventName;
+        $this->eventDispatcher->addListener($eventNameWithPrefix, function(Event $event)use($listener){
+            call_user_func_array($listener, array_merge(array($event), $event->getParameters()));
+        }, $priority);
     }
     
     /**
@@ -145,12 +127,13 @@ class Bridge
     {
         $responses = array();
 
-        $eventsJSON = $request->request->get('events');
-        if(!$eventsJSON){
+        $eventJSON = $request->request->get('events');
+
+        if(!$eventJSON){
             return $responses;
         }
 
-        $events = @json_decode($eventsJSON, true);
+        $events = @json_decode($eventJSON, true);
         if(!$events){
             return $responses;
         }
@@ -218,6 +201,23 @@ class Bridge
     public function sendMessagesToUsers(array $messages, array $users)
     {
         return $this->transport->sendMessagesToUsers($messages, $users);
+    }
+
+    protected function registerEventListeners()
+    {
+        $self = $this;
+
+        $this->addEventListener('user.connection', function(Event $event)use($self){
+            $user = $event->getUser();
+            $event->addMessage(new Message('bridge', 'add user '. $user));
+            $self->getUserContainer()->add($user);
+        });
+
+        $this->addEventListener('user.disconnection', function(Event $event)use($self){
+            $user = $event->getUser();
+            $event->addMessage(new Message('bridge', 'remove user '. $user));
+            $self->getUserContainer()->remove($user);
+        });
     }
     
 }

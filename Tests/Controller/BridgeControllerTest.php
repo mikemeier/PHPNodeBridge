@@ -47,15 +47,26 @@ class BridgeControllerTest extends WebTestCase
     }
 
     /**
+     * @covers mikemeier\PHPNodeBridge\Controller\BridgeController::callAction
+     */
+    public function testCallReturnValueAction()
+    {
+        $eventResponse = $this->validateAllInOne('returnvalue', array('paraA', 'paraB'), 'returnvalue', 'array');
+
+        $this->assertSame(array('paraA', 'paraB'), $eventResponse, 'Parameters not found');
+    }
+
+    /**
      * @param string $eventName
-     * @param string $eventParameters
+     * @param array $eventParameters
      * @param string $eventResponseName
      * @param string $eventResponseType
      * @return mixed
      */
-    protected function validateAllInOne($eventName, $eventParameters, $eventResponseName, $eventResponseType)
+    protected function validateAllInOne($eventName, array $eventParameters, $eventResponseName, $eventResponseType)
     {
-        $client = $this->request($this->getEventParameters($eventName, $eventParameters));
+        $parameters = $this->getEventParameters($eventName, $eventParameters);
+        $client = $this->request($parameters);
 
         $content = $this->validateResponse($client->getResponse());
         $eventResponses = $this->validateEvent($eventName, $content);
@@ -133,7 +144,7 @@ class BridgeControllerTest extends WebTestCase
      * @param array $parameters
      * @return array
      */
-    protected function getEventParameters($eventName, $parameters = array())
+    protected function getEventParameters($eventName, array $parameters = array())
     {
         return array(
             'socketId' => self::SOCKET_ID,

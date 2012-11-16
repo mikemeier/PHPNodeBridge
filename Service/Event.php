@@ -36,6 +36,7 @@ class Event extends SymfonyEvent
     public function __construct(Response $response, User $user, $name, array $parameters = array())
     {
         $this->setName($name);
+
         $this->response = $response;
         $this->user = $user;
         $this->parameters = $parameters;
@@ -47,6 +48,14 @@ class Event extends SymfonyEvent
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
     }
 
     /**

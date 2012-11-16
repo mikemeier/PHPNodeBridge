@@ -53,14 +53,17 @@ class TwigExtension extends \Twig_Extension
      * @param string $varName
      * @return string
      */
-    public function phpnodebridgejs($varName = 'phpnodebridge')
+    public function phpnodebridgejs($varname = 'bridge')
     {
         $identification = $this->identificationStrategy->getEncryptedIdentification();
 
         return '
             <script type="text/javascript" src="'. $this->bridge->getSocketIoClientUri() .'"></script>
             <script type="text/javascript">
-                var '. $varName .' = io.connect(\''. $this->bridge->getSocketIoServerConnectionUri($identification) .'\');
+                if(typeof mikemeier_php_node_bridge != "function"){
+                    throw "Include first \'@mikemeierPHPNodeBridgeBundle/Resources/public/js/bridge.js\'";
+                }
+                var '. $varname .' = new mikemeier_php_node_bridge(io.connect(\''. $this->bridge->getSocketIoServerConnectionUri($identification) .'\'));
             </script>
         ';
     }
