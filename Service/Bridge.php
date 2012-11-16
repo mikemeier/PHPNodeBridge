@@ -145,6 +145,9 @@ class Bridge
         $identification = $request->request->get('identification');
 
         $user = new User($socketId, $this->identificationStrategy->decryptIdentification($identification));
+        if(null === $this->userContainer->getBySocketId($socketId)){
+            $this->userContainer->add($user);
+        }
 
         $eventNamePrefix = $this->config->getEventNamePrefix();
 

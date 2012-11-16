@@ -31,6 +31,7 @@ class UserContainer
     public function __construct(StoreInterface $store, $storeKey = self::STORE_KEY)
     {
         $this->store = $store;
+        $this->storeKey = $storeKey;
         $this->users = $store->get($storeKey);
     }
     
