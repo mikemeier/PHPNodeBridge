@@ -18,19 +18,33 @@ class FileAdapter implements StoreInterface
      * @var array 
      */
     protected $data = array();
-    
+
     /**
-     * @param string $file 
+     * @var bool
      */
-    public function __construct($file)
+    protected $autoFlush = true;
+
+    /**
+     * @param $file
+     * @param bool $autoFlush
+     */
+    public function __construct($file, $autoFlush = true)
     {
         $this->file = $file;
+        $this->autoFlush = $autoFlush;
 
         if(file_exists($file) && is_readable($file)){
             $this->data = unserialize(file_get_contents($file));
         }
     }
-    
+
+    public function __destruct()
+    {
+        if(true === $this->autoFlush){
+            $this->flush();
+        }
+    }
+
     /**
      * @param string $key
      * @return mixed 
