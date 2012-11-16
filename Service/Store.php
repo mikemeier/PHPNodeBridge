@@ -23,7 +23,7 @@ class Store
     public function __construct($file)
     {
         $this->file = $file;
-        
+
         if(file_exists($file) && is_readable($file)){
             $this->data = unserialize(file_get_contents($file));
         }

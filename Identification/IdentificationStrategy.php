@@ -4,13 +4,13 @@ namespace mikemeier\PHPNodeBridge\Identification;
 
 use mikemeier\PHPNodeBridge\Encryption\EncryptionInterface;
 
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class IdentificationStrategy implements IdentificationStrategyInterface
 {
 
     /**
-     * @var Session
+     * @var SessionInterface
      */
     protected $session;
 
@@ -24,7 +24,7 @@ class IdentificationStrategy implements IdentificationStrategyInterface
      */
     protected $salt;
 
-    public function __construct(Session $session, EncryptionInterface $encryption, $salt)
+    public function __construct(SessionInterface $session, EncryptionInterface $encryption, $salt)
     {
         $this->session = $session;
         $this->encryption = $encryption;

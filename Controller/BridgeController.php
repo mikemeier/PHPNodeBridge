@@ -39,6 +39,22 @@ class BridgeController extends Controller
     }
 
     /**
+     * @Route("/userlist", name="mikemeier_phpnodebridge_userlist")
+     * @Template
+     */
+    public function userlistAction()
+    {
+        foreach($this->getBridge()->getUserContainer()->getAll() as $user)
+        {
+            $this->getBridge()->sendMessageToUser(new \mikemeier\PHPNodeBridge\Service\Message(), $user);
+        }
+
+        return array(
+            'users' => $this->getBridge()->getUserContainer()->getAll()
+        );
+    }
+
+    /**
      * @return Bridge
      */
     protected function getBridge()
