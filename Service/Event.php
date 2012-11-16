@@ -2,6 +2,8 @@
 
 namespace mikemeier\PHPNodeBridge\Service;
 
+use mikemeier\PHPNodeBridge\User\User;
+
 use Symfony\Component\EventDispatcher\Event as SymfonyEvent;
 
 class Event extends SymfonyEvent

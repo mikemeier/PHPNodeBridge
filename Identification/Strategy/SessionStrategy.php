@@ -1,12 +1,13 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Identification;
+namespace mikemeier\PHPNodeBridge\Identification\Strategy;
 
+use mikemeier\PHPNodeBridge\Identification\IdentificationStrategyInterface;
 use mikemeier\PHPNodeBridge\Encryption\EncryptionInterface;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class IdentificationStrategy implements IdentificationStrategyInterface
+class SessionStrategy implements IdentificationStrategyInterface
 {
 
     /**

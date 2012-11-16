@@ -1,6 +1,6 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Service;
+namespace mikemeier\PHPNodeBridge\User;
 
 class User
 {

@@ -44,11 +44,6 @@ class BridgeController extends Controller
      */
     public function userlistAction()
     {
-        foreach($this->getBridge()->getUserContainer()->getAll() as $user)
-        {
-            $this->getBridge()->sendMessageToUser(new \mikemeier\PHPNodeBridge\Service\Message(), $user);
-        }
-
         return array(
             'users' => $this->getBridge()->getUserContainer()->getAll()
         );

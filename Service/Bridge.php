@@ -3,6 +3,9 @@
 namespace mikemeier\PHPNodeBridge\Service;
 
 use mikemeier\PHPNodeBridge\Identification\IdentificationStrategyInterface;
+use mikemeier\PHPNodeBridge\Transport\TransportInterface;
+use mikemeier\PHPNodeBridge\User\UserContainer;
+use mikemeier\PHPNodeBridge\User\User;
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +24,7 @@ class Bridge
     protected $userContainer;
     
     /**
-     * @var Transport 
+     * @var TransportInterface
      */
     protected $transport;
 
@@ -38,14 +41,14 @@ class Bridge
     /**
      * @param Config $config
      * @param UserContainer $userContainer
-     * @param Transport $transport
+     * @param TransportInterface $transport
      * @param IdentificationStrategyInterface $identificationStrategy
      * @param EventDispatcher $eventDispatcher
      */
     public function __construct(
         Config $config,
         UserContainer $userContainer,
-        Transport $transport,
+        TransportInterface $transport,
         IdentificationStrategyInterface $identificationStrategy,
         EventDispatcher $eventDispatcher
     ){
@@ -80,7 +83,7 @@ class Bridge
     }
     
     /**
-     * @return Transport 
+     * @return TransportInterface
      */
     public function getTransport()
     {

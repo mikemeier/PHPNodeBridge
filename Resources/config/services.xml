@@ -16,7 +16,7 @@
             <parameter key="eventNamePrefix">mikemeier_php_node_bridge</parameter>
         </parameter>
         <parameter key="mikemeier_php_node_bridge.encryptionsalt">mysalt</parameter>
-        <parameter key="mikemeier_php_node_bridge.store">%kernel.root_dir%/cache/phpnodebridge/userstore.txt</parameter>
+        <parameter key="mikemeier_php_node_bridge.store">%kernel.root_dir%/Resources/mikemeierPHPNodeBridge/Store/userstore.txt</parameter>
     </parameters>
 
     <services>
@@ -24,15 +24,15 @@
             <argument>%mikemeier_php_node_bridge.config%</argument>
         </service>
 
-        <service id="mikemeier_php_node_bridge.store" class="mikemeier\PHPNodeBridge\Service\Store">
+        <service id="mikemeier_php_node_bridge.store" class="mikemeier\PHPNodeBridge\Store\Adapter\FileAdapter">
             <argument>%mikemeier_php_node_bridge.store%</argument>
         </service>
 
-        <service id="mikemeier_php_node_bridge.transport" class="mikemeier\PHPNodeBridge\Service\Transport">
+        <service id="mikemeier_php_node_bridge.transport" class="mikemeier\PHPNodeBridge\Transport\Adapter\CurlAdapter">
             <argument type="service" id="mikemeier_php_node_bridge.config" />
         </service>
 
-        <service id="mikemeier_php_node_bridge.usercontainer" class="mikemeier\PHPNodeBridge\Service\UserContainer">
+        <service id="mikemeier_php_node_bridge.usercontainer" class="mikemeier\PHPNodeBridge\User\UserContainer">
             <argument type="service" id="mikemeier_php_node_bridge.store" />
         </service>
 
@@ -46,7 +46,7 @@
 
         <service id="mikemeier_php_node_bridge.encryption" class="mikemeier\PHPNodeBridge\Encryption\Adapter\McryptAdapter" />
 
-        <service id="mikemeier_php_node_bridge.identificationstrategy" class="mikemeier\PHPNodeBridge\Identification\IdentificationStrategy">
+        <service id="mikemeier_php_node_bridge.identificationstrategy" class="mikemeier\PHPNodeBridge\Identification\Strategy\SessionStrategy">
             <argument type="service" id="session" />
             <argument type="service" id="mikemeier_php_node_bridge.encryption" />
             <argument>%mikemeier_php_node_bridge.encryptionsalt%</argument>

@@ -1,10 +1,12 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Service;
+namespace mikemeier\PHPNodeBridge\Store\Adapter;
+
+use mikemeier\PHPNodeBridge\Store\StoreInterface;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-class Store
+class FileAdapter implements StoreInterface
 {
     
     /**
@@ -29,9 +31,6 @@ class Store
         }
     }
 
-    /**
-     *
-     */
     public function __destruct()
     {
         $dir = dirname($this->file);
@@ -56,14 +55,17 @@ class Store
     {
         return isset($this->data[$key]) ? $this->data[$key] : null;
     }
-    
+
     /**
-     * @param string $key
-     * @param mixed $value 
+     * @param $key
+     * @param $value
+     * @return FileAdapter
      */
     public function set($key, $value)
     {
         $this->data[$key] = $value;
+
+        return $this;
     }
     
 }

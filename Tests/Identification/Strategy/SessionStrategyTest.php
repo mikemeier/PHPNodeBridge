@@ -1,11 +1,11 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Identification;
+namespace mikemeier\PHPNodeBridge\Identification\Strategy;
 
 use mikemeier\PHPNodeBridge\Encryption\EncryptionInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class IdentificationStrategyTest extends \PHPUnit_Framework_TestCase
+class SessionStrategyTest extends \PHPUnit_Framework_TestCase
 {
 
     const SALT = 'testSalt';

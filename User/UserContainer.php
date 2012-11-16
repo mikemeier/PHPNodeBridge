@@ -1,6 +1,8 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Service;
+namespace mikemeier\PHPNodeBridge\User;
+
+use mikemeier\PHPNodeBridge\Store\StoreInterface;
 
 class UserContainer
 {
@@ -23,10 +25,10 @@ class UserContainer
     const STORE_KEY = 'phpnodebridge.users';
 
     /**
-     * @param Store $store
+     * @param StoreInterface $store
      * @param string $storeKey
      */
-    public function __construct(Store $store, $storeKey = self::STORE_KEY)
+    public function __construct(StoreInterface $store, $storeKey = self::STORE_KEY)
     {
         $this->store = $store;
         $this->users = $store->get($storeKey);

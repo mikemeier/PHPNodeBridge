@@ -1,8 +1,13 @@
 <?php
 
-namespace mikemeier\PHPNodeBridge\Service;
+namespace mikemeier\PHPNodeBridge\Transport\Adapter;
 
-class Transport
+use mikemeier\PHPNodeBridge\Service\Message;
+use mikemeier\PHPNodeBridge\Service\Config;
+use mikemeier\PHPNodeBridge\Transport\TransportInterface;
+use mikemeier\PHPNodeBridge\User\User;
+
+class CurlAdapter implements TransportInterface
 {
     
     /**
