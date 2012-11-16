@@ -2,6 +2,8 @@
 
 namespace mikemeier\PHPNodeBridge\Service;
 
+use mikemeier\PHPNodeBridge\Identification\IdentificationStrategyInterface;
+
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,29 +24,35 @@ class Bridge
      * @var Transport 
      */
     protected $transport;
-    
+
     /**
-     * @var EventDispatcher 
+     * @var IdentificationStrategyInterface
+     */
+    protected $identificationStrategy;
+
+    /**
+     * @var EventDispatcher
      */
     protected $eventDispatcher;
-
-    const INTERNAL_EVENT_PREFIX = 'mikemeier_php_node_bridge';
 
     /**
      * @param Config $config
      * @param UserContainer $userContainer
      * @param Transport $transport
+     * @param IdentificationStrategyInterface $identificationStrategy
      * @param EventDispatcher $eventDispatcher
      */
     public function __construct(
         Config $config,
         UserContainer $userContainer,
         Transport $transport,
+        IdentificationStrategyInterface $identificationStrategy,
         EventDispatcher $eventDispatcher
     ){
         $this->config = $config;
         $this->userContainer = $userContainer;
         $this->transport = $transport;
+        $this->identificationStrategy = $identificationStrategy;
         $this->eventDispatcher = $eventDispatcher;
 
         $this->registerEventListeners();
@@ -53,22 +61,32 @@ class Bridge
     protected function registerEventListeners()
     {
         $self = $this;
-        $eventDispatcher = $this->eventDispatcher;
 
-        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.connection', function(Event $event)use($self){
+        $this->addEventListener('user.connection', function(Event $event)use($self){
             $user = $event->getUser();
-            $user->getIdentification();
-            session_id($user->getIdentification());
-
-            $event->addMessage(new Message('usercontainer', 'add user '. $user));
+            $event->addMessage(new Message('bridge', 'add user '. $user));
             $self->getUserContainer()->add($user);
         });
 
-        $eventDispatcher->addListener(self::INTERNAL_EVENT_PREFIX.'.user.disconnection', function(Event $event)use($self){
+        $this->addEventListener('user.disconnection', function(Event $event)use($self){
             $user = $event->getUser();
-            $event->addMessage(new Message('usercontainer', 'remove user '. $user));
+            $event->addMessage(new Message('bridge', 'remove user '. $user));
             $self->getUserContainer()->remove($user);
         });
+
+        $this->addEventListener('user.message', function(Event $event)use($self){
+            $event->addMessage(new Message('bridge', array('success' => true)));
+        });
+    }
+
+    /**
+     * @param $eventName
+     * @param callable $listener
+     * @param integer $priority
+     */
+    public function addEventListener($eventName, $listener, $priority = 0)
+    {
+        $this->eventDispatcher->addListener($this->config->getEventNamePrefix().'.'.$eventName, $listener, $priority);
     }
     
     /**
@@ -139,26 +157,25 @@ class Bridge
 
         $socketId = $request->request->get('socketId');
         $identification = $request->request->get('identification');
-        $user = new User($socketId, $identification);
+
+        $user = new User($socketId, $this->identificationStrategy->decryptIdentification($identification));
+
+        $eventNamePrefix = $this->config->getEventNamePrefix();
 
         foreach($events as $eventArray){
             $eventName = isset($eventArray['name']) ? $eventArray['name'] : null;
 
             if($eventName){
-                if(substr($eventName, 0, strlen(self::INTERNAL_EVENT_PREFIX)) === self::INTERNAL_EVENT_PREFIX){
-                    $dispatchEventName = $eventName;
-                }else{
-                    $dispatchEventName = $this->config->getEventNamePrefix().'.'.$eventName;
-                }
+                $dispatchingEventName = $eventNamePrefix.'.'.$eventName;
 
-                $dispatchEventParameters = isset($eventArray['parameters']) && is_array($eventArray['parameters']) ?
+                $eventParameters = isset($eventArray['parameters']) && is_array($eventArray['parameters']) ?
                     $eventArray['parameters'] : array();
 
-                $response = new Response($dispatchEventName);
-                $event = new Event($response, $user, $dispatchEventName, $dispatchEventParameters);
+                $response = new Response($eventName);
+                $event = new Event($response, $user, $eventName, $eventParameters);
                 $responses[] = $response;
 
-                $this->eventDispatcher->dispatch($dispatchEventName, $event);
+                $this->eventDispatcher->dispatch($dispatchingEventName, $event);
             }
         }
 

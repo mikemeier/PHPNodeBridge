@@ -46,7 +46,7 @@ class User
      */
     public function __toString()
     {
-        return 'User with Socket: '. $this->getSocketId() .' and Id: '. $this->getIdentification();
+        return 'User with SocketId: '. $this->getSocketId();
     }
     
 }

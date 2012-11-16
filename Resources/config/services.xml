@@ -15,6 +15,7 @@
             <parameter key="socketIoServerToken">server</parameter>
             <parameter key="eventNamePrefix">mikemeier_php_node_bridge</parameter>
         </parameter>
+        <parameter key="mikemeier_php_node_bridge.encryptionsalt">mysalt</parameter>
         <parameter key="mikemeier_php_node_bridge.store">%kernel.root_dir%/cache/phpnodebridge/userstore.txt</parameter>
     </parameters>
 
@@ -39,12 +40,21 @@
             <argument type="service" id="mikemeier_php_node_bridge.config" />
             <argument type="service" id="mikemeier_php_node_bridge.usercontainer" />
             <argument type="service" id="mikemeier_php_node_bridge.transport" />
+            <argument type="service" id="mikemeier_php_node_bridge.identificationstrategy" />
             <argument type="service" id="event_dispatcher" />
+        </service>
+
+        <service id="mikemeier_php_node_bridge.encryption" class="mikemeier\PHPNodeBridge\Encryption\Adapter\McryptAdapter" />
+
+        <service id="mikemeier_php_node_bridge.identificationstrategy" class="mikemeier\PHPNodeBridge\Identification\IdentificationStrategy">
+            <argument type="service" id="session" />
+            <argument type="service" id="mikemeier_php_node_bridge.encryption" />
+            <argument>%mikemeier_php_node_bridge.encryptionsalt%</argument>
         </service>
 
         <service id="mikemeier_php_node_bridge.twigextension" class="mikemeier\PHPNodeBridge\Twig\TwigExtension">
             <argument type="service" id="mikemeier_php_node_bridge.bridge" />
-            <argument type="service" id="session" />
+            <argument type="service" id="mikemeier_php_node_bridge.identificationstrategy" />
             <tag name="twig.extension" />
         </service>
     </services>

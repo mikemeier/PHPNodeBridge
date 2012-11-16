@@ -4,6 +4,7 @@ namespace mikemeier\PHPNodeBridge\Tests\Controller;
 
 use mikemeier\PHPNodeBridge\Controller\BridgeController;
 use mikemeier\PHPNodeBridge\Service\Config;
+use mikemeier\PHPNodeBridge\Identification\IdentificationStrategyInterface;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Router;
@@ -26,17 +27,11 @@ class BridgeControllerTest extends WebTestCase
      */
     public function testCallUserContainerAddUserAction()
     {
-        $eventResponse = $this->validateAllInOne('.user.connection', array(), 'usercontainer', 'string');
+        $eventResponse = $this->validateAllInOne('user.connection', array(), 'bridge', 'string');
 
-        $this->assertTrue((
-            false !== strstr($eventResponse, self::SOCKET_ID)
-            &&
-            false !== strstr($eventResponse, self::IDENTIFICATION)
-            &&
-            false !== strstr($eventResponse, 'user')
-            &&
-            false !== strstr($eventResponse, 'add')
-        ), "did not found the expected response string");
+        $this->assertContains(self::SOCKET_ID, $eventResponse, 'Socket-Id not found');
+        $this->assertContains('user', $eventResponse, 'User not found');
+        $this->assertContains('add', $eventResponse, 'Add not found');
     }
 
     /**
@@ -44,31 +39,22 @@ class BridgeControllerTest extends WebTestCase
      */
     public function testCallUserContainerRemoveUserAction()
     {
-        $eventResponse = $this->validateAllInOne('.user.disconnection', array(), 'usercontainer', 'string');
+        $eventResponse = $this->validateAllInOne('user.disconnection', array(), 'bridge', 'string');
 
-        $this->assertTrue((
-            false !== strstr($eventResponse, self::SOCKET_ID)
-                &&
-                false !== strstr($eventResponse, self::IDENTIFICATION)
-                &&
-                false !== strstr($eventResponse, 'user')
-                &&
-                false !== strstr($eventResponse, 'remove')
-        ), "did not found the expected response string");
+        $this->assertContains(self::SOCKET_ID, $eventResponse, 'Socket-Id not found');
+        $this->assertContains('user', $eventResponse, 'User not found');
+        $this->assertContains('remove', $eventResponse, 'Remove not found');
     }
 
     /**
-     * @param string $eventNameSuffix
+     * @param string $eventName
      * @param string $eventParameters
      * @param string $eventResponseName
      * @param string $eventResponseType
      * @return mixed
      */
-    protected function validateAllInOne($eventNameSuffix, $eventParameters, $eventResponseName, $eventResponseType)
+    protected function validateAllInOne($eventName, $eventParameters, $eventResponseName, $eventResponseType)
     {
-        $eventNamePrefix = $this->getConfig()->getEventNamePrefix();
-        $eventName = $eventNamePrefix.$eventNameSuffix;
-
         $client = $this->request($this->getEventParameters($eventName, $eventParameters));
 
         $content = $this->validateResponse($client->getResponse());
@@ -151,7 +137,7 @@ class BridgeControllerTest extends WebTestCase
     {
         return array(
             'socketId' => self::SOCKET_ID,
-            'identification' => self::IDENTIFICATION,
+            'identification' => $this->getIdentificationStrategy()->getEncryptedIdentification(self::IDENTIFICATION),
             'events' => json_encode(array(
                 array(
                     'name' => $eventName,
@@ -180,11 +166,11 @@ class BridgeControllerTest extends WebTestCase
     }
 
     /**
-     * @return Config
+     * @return IdentificationStrategyInterface
      */
-    protected function getConfig()
+    protected function getIdentificationStrategy()
     {
-        return $this->getContainer()->get('mikemeier_php_node_bridge.config');
+        return $this->getContainer()->get('mikemeier_php_node_bridge.identificationstrategy');
     }
 
     /**

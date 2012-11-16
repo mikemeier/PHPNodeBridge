@@ -3,23 +3,29 @@
 namespace mikemeier\PHPNodeBridge\Twig;
 
 use mikemeier\PHPNodeBridge\Service\Bridge;
-use Symfony\Component\HttpFoundation\Session\Session;
+use mikemeier\PHPNodeBridge\Identification\IdentificationStrategyInterface;
 
 class TwigExtension extends \Twig_Extension
 {
+
     /**
      * @var Bridge
      */
     protected $bridge;
-    /**
-     * @var Session
-     */
-    protected $session;
 
-    public function __construct(Bridge $bridge, Session $session)
+    /**
+     * @var IdentificationStrategyInterface
+     */
+    protected $identificationStrategy;
+
+    /**
+     * @param Bridge $bridge
+     * @param IdentificationStrategyInterface $identificationStrategy
+     */
+    public function __construct(Bridge $bridge, IdentificationStrategyInterface $identificationStrategy)
     {
         $this->bridge = $bridge;
-        $this->session = $session;
+        $this->identificationStrategy = $identificationStrategy;
     }
 
     /**
@@ -49,8 +55,7 @@ class TwigExtension extends \Twig_Extension
      */
     public function phpnodebridgejs($varName = 'phpnodebridge')
     {
-        $this->session->start();
-        $identification = hash_hmac('sha512', $this->session->getId(), 'mykey');
+        $identification = $this->identificationStrategy->getEncryptedIdentification();
 
         return '
             <script type="text/javascript" src="'. $this->bridge->getSocketIoClientUri() .'"></script>

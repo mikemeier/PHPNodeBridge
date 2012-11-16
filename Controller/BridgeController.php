@@ -23,7 +23,8 @@ class BridgeController extends Controller
             'events' => array()
         );
 
-        foreach($this->getBridge()->process($this->getRequest()) as $response){
+        $responses = $this->getBridge()->process($this->getRequest());
+        foreach($responses as $response){
             $eventName = $response->getEventName();
             $content['events'][$eventName] = array();
 
