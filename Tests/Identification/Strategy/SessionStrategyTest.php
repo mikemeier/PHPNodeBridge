@@ -11,10 +11,11 @@ class SessionStrategyTest extends \PHPUnit_Framework_TestCase
     const SALT = 'testSalt';
     const SESSION_ID = 'testSessionId';
 
-    const IDENTIFICATION = 'identification';
+    const IDENTIFICATION_ENCRYPTED = 'identificationEncrypted';
+    const IDENTIFICATION_DECRYPTED = 'identificationDecrypted';
 
     /**
-     * @var IdentificationStrategy
+     * @var SessionStrategy
      */
     protected $object;
 
@@ -23,22 +24,18 @@ class SessionStrategyTest extends \PHPUnit_Framework_TestCase
         $session = $this->getSession();
         $encryption = $this->getEncryption();
 
-        $this->object = new IdentificationStrategy($session, $encryption, self::SALT);
-    }
-
-    protected function tearDown()
-    {
+        $this->object = new SessionStrategy($session, $encryption, self::SALT);
     }
 
     /**
-     * @covers mikemeier\PHPNodeBridge\Identification\IdentificationStrategy::decryptIdentification
+     * @covers mikemeier\PHPNodeBridge\Identification\Strategy\SessionStrategy::decryptIdentification
      */
     public function testDecryptIdentification()
     {
-        $encrypted = $this->object->getEncryptedIdentification(self::IDENTIFICATION);
+        $encrypted = $this->object->getEncryptedIdentification();
         $decrypted = $this->object->decryptIdentification($encrypted);
 
-        $this->assertEquals(self::IDENTIFICATION, $decrypted);
+        $this->assertEquals(self::IDENTIFICATION_DECRYPTED, $decrypted);
     }
 
     /**

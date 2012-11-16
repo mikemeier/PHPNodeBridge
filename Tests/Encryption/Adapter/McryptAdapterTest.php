@@ -18,10 +18,6 @@ class McryptAdapterTest extends \PHPUnit_Framework_TestCase
         $this->object = new McryptAdapter;
     }
 
-    protected function tearDown()
-    {
-    }
-
     /**
      * @covers mikemeier\PHPNodeBridge\Encryption\Adapter\McryptAdapter::encrypt
      */

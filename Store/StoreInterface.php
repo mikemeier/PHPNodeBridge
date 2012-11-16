@@ -18,4 +18,9 @@ interface StoreInterface
      */
     public function set($key, $value);
 
+    /**
+     * @return StoreInterface
+     */
+    public function flush();
+
 }
