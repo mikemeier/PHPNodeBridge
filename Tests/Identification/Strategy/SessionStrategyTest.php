@@ -24,7 +24,8 @@ class SessionStrategyTest extends \PHPUnit_Framework_TestCase
         $session = $this->getSession();
         $encryption = $this->getEncryption();
 
-        $this->object = new SessionStrategy($session, $encryption, self::SALT);
+        $this->object = new SessionStrategy($session, self::SALT);
+        $this->object->setEncryption($encryption);
     }
 
     /**

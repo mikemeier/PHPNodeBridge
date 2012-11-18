@@ -58,15 +58,6 @@ class BridgeControllerTest extends WebTestCase
     }
 
     /**
-     * @covers mikemeier\PHPNodeBridge\Controller\BridgeController::callAction
-     */
-    public function testCallReturnValueAction()
-    {
-        $eventResponse = $this->validateAllInOne('returnvalue', array('paraA', 'paraB'), 'returnvalue', 'array');
-        $this->assertSame(array('paraA', 'paraB'), $eventResponse, 'Parameters not found');
-    }
-
-    /**
      * @param string $eventName
      * @param array $eventParameters
      * @param string $eventResponseName

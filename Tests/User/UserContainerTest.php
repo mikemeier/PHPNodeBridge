@@ -15,12 +15,12 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var User[]
      */
-    protected $users;
+    public $users;
 
     /**
      * @var StoreInterface
      */
-    protected $store;
+    public $store;
 
     const STORE_KEY = 'storeKey';
 
@@ -47,10 +47,23 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
 
         $store = $this->getMock('mikemeier\PHPNodeBridge\Store\StoreInterface');
 
+        $self = $this;
+
         $store
             ->expects($this->any())
             ->method('get')
-            ->will($this->returnValue($this->users))
+            ->will($this->returnCallback(function()use($self){
+                return $self->users;
+            }))
+        ;
+
+        $store
+            ->expects($this->any())
+            ->method('set')
+            ->will($this->returnCallback(function($key, $value)use($self){
+                $self->users = $value;
+                return $self->store;
+            }))
         ;
 
         $this->store = $store;
@@ -59,25 +72,34 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers mikemeier\PHPNodeBridge\User\UserContainer::__destruct
+     * @covers mikemeier\PHPNodeBridge\User\UserContainer::clear
      */
-    public function test__destruct()
+    public function testClear()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->object->clear();
+        $this->assertSame(array(), $this->object->getAll());
     }
 
     /**
      * @covers mikemeier\PHPNodeBridge\User\UserContainer::add
      */
-    public function testAdd()
+    public function testAddUser()
     {
-        $user = new User('testSocketId', 'testIdentification');
-
+        $user = new User('MyNewUser');
         $this->object->add($user);
-        $this->assertAttributeContains($user, 'users', $this->object);
+
+        $this->assertSame($user, $this->object->getByIdentification('MyNewUser'));
+        $this->assertContains($user, $this->object->getAll());
+    }
+
+    /**
+     * @covers mikemeier\PHPNodeBridge\User\UserContainer::remove
+     */
+    public function testRemoveUser()
+    {
+        $user = reset($this->users);
+        $this->object->remove($user);
+        $this->assertNotContains($user, $this->object->getAll());
     }
 
     /**
@@ -111,16 +133,5 @@ class UserContainerTest extends \PHPUnit_Framework_TestCase
     public function testStoreKeyIsSet()
     {
         $this->assertAttributeEquals(self::STORE_KEY, 'storeKey', $this->object);
-    }
-
-    /**
-     * @covers mikemeier\PHPNodeBridge\User\UserContainer::remove
-     */
-    public function testRemove()
-    {
-        $user = reset($this->users);
-
-        $this->object->remove($user);
-        $this->assertAttributeNotContains($user, 'users', $this->object);
     }
 }

@@ -29,6 +29,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('encryption')->defaultValue('mikemeier_php_node_bridge.encryption')->end()
                     ->scalarNode('identificationstrategy')->defaultValue('mikemeier_php_node_bridge.identificationstrategy')->end()
                     ->scalarNode('transport')->defaultValue('mikemeier_php_node_bridge.transport')->end()
+                    ->scalarNode('store')->defaultValue('mikemeier_php_node_bridge.store')->end()
 				->end()
 			->end()
         ;

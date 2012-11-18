@@ -16,9 +16,7 @@
             <argument type="service" id="mikemeier_php_node_bridge.config" />
         </service>
 
-        <service id="mikemeier_php_node_bridge.usercontainer" class="mikemeier\PHPNodeBridge\User\UserContainer">
-            <argument type="service" id="mikemeier_php_node_bridge.store" />
-        </service>
+        <service id="mikemeier_php_node_bridge.usercontainer" class="mikemeier\PHPNodeBridge\User\UserContainer" />
 
         <service id="mikemeier_php_node_bridge.bridge" class="mikemeier\PHPNodeBridge\Service\Bridge">
             <argument type="service" id="mikemeier_php_node_bridge.config" />

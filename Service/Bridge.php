@@ -238,6 +238,9 @@ class Bridge
         return $this->config->getEventNamePrefix();
     }
 
+    /**
+     * @return Bridge
+     */
     public function registerEventListeners()
     {
         $self = $this;
@@ -278,6 +281,8 @@ class Bridge
             $event->addMessage(new Message('bridge', 'clear usercontainer'));
             $self->getUserContainer()->clear();
         });
+
+        return $this;
     }
     
 }

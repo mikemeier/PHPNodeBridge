@@ -77,12 +77,13 @@ class UserContainer
         $users = $this->getUsersFromStore();
         unset($users[$user->getIdentification()]);
         $this->setUsersToStore($users);
+
         return $this;
     }
 
     protected function getUsersFromStore()
     {
-        return $this->store->get($this->storeKey);
+        return $this->store->get($this->storeKey) ?: array();
     }
 
     protected function setUsersToStore($users)
