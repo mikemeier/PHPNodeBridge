@@ -17,11 +17,6 @@ class UserContainer
      */
     protected $storeKey;
     
-    /**
-     * @var User[] 
-     */
-    protected $users = array();
-    
     const STORE_KEY = 'phpnodebridge.users';
 
     /**
@@ -32,12 +27,6 @@ class UserContainer
     {
         $this->store = $store;
         $this->storeKey = $storeKey;
-        $this->users = $store->get($storeKey);
-    }
-    
-    public function __destruct()
-    {
-        $this->store->set($this->storeKey, $this->users);
     }
 
     /**
@@ -45,15 +34,19 @@ class UserContainer
      */
     public function clear()
     {
-        $this->users = array();
+        $this->setUsersToStore(array());
     }
     
     /**
-     * @param User $user 
+     * @param User $user
+     * @retur UserContainer
      */
     public function add(User $user)
     {
-        $this->users[$user->getIdentification()] = $user;
+        $users = $this->getUsersFromStore();
+        $users[$user->getIdentification()] = $user;
+        $this->setUsersToStore($users);
+        return $this;
     }
     
     /**
@@ -61,7 +54,7 @@ class UserContainer
      */
     public function getAll()
     {
-        return $this->users;
+        return $this->getUsersFromStore();
     }
     
     /**
@@ -70,8 +63,9 @@ class UserContainer
      */
     public function getByIdentification($identification)
     {
-        return isset($this->users[$identification]) ?
-            $this->users[$identification] : null;
+        $users = $this->getUsersFromStore();
+        return isset($users[$identification]) ?
+            $users[$identification] : null;
     }
     
     /**
@@ -80,9 +74,20 @@ class UserContainer
      */
     public function remove(User $user)
     {
-        unset($this->users[$user->getIdentification()]);
-        
+        $users = $this->getUsersFromStore();
+        unset($users[$user->getIdentification()]);
+        $this->setUsersToStore($users);
         return $this;
+    }
+
+    protected function getUsersFromStore()
+    {
+        return $this->store->get($this->storeKey);
+    }
+
+    protected function setUsersToStore($users)
+    {
+        $this->store->set($this->storeKey, $users);
     }
     
 }

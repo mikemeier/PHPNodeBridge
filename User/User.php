@@ -36,7 +36,7 @@ class User
      */
     public function getLastAddedSocketId()
     {
-        return array_pop($this->socketIds);
+        return end($this->socketIds);
     }
 
     /**
@@ -53,6 +53,7 @@ class User
     }
 
     /**
+     * @param string $socketId
      * @return User
      */
     public function removeSocketId($socketId)

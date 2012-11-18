@@ -25,11 +25,15 @@ class SessionStrategy implements IdentificationStrategyInterface
      */
     protected $salt;
 
-    public function __construct(SessionInterface $session, EncryptionInterface $encryption, $salt)
+    public function __construct(SessionInterface $session, $salt)
     {
         $this->session = $session;
-        $this->encryption = $encryption;
         $this->salt = $salt;
+    }
+
+    public function setEncryption(EncryptionInterface $encryption)
+    {
+        $this->encryption = $encryption;
     }
 
     /**

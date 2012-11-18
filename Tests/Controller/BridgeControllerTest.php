@@ -49,10 +49,20 @@ class BridgeControllerTest extends WebTestCase
     /**
      * @covers mikemeier\PHPNodeBridge\Controller\BridgeController::callAction
      */
+    public function testCallClearUserContainer()
+    {
+        $eventResponse = $this->validateAllInOne('server.restart', array(), 'bridge', 'string');
+
+        $this->assertContains('clear', $eventResponse, 'clear not found');
+        $this->assertContains('usercontainer', $eventResponse, 'usercontainer not found');
+    }
+
+    /**
+     * @covers mikemeier\PHPNodeBridge\Controller\BridgeController::callAction
+     */
     public function testCallReturnValueAction()
     {
         $eventResponse = $this->validateAllInOne('returnvalue', array('paraA', 'paraB'), 'returnvalue', 'array');
-
         $this->assertSame(array('paraA', 'paraB'), $eventResponse, 'Parameters not found');
     }
 

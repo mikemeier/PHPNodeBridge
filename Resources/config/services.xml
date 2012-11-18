@@ -5,28 +5,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
 >
-
-    <parameters>
-        <parameter key="mikemeier_php_node_bridge.config" type="collection">
-            <parameter key="socketIoClientUri">http://node.local:8080/socket.io/socket.io.js</parameter>
-            <parameter key="socketIoServerUri">http://node.local:8080</parameter>
-            <parameter key="socketIoApiTokenName">demo</parameter>
-            <parameter key="socketIoClientToken">client</parameter>
-            <parameter key="socketIoServerToken">server</parameter>
-            <parameter key="eventNamePrefix">mikemeier_php_node_bridge</parameter>
-        </parameter>
-        <parameter key="mikemeier_php_node_bridge.encryptionsalt">mysalt</parameter>
-        <parameter key="mikemeier_php_node_bridge.store">%kernel.root_dir%/Resources/mikemeierPHPNodeBridge/Store/userstore.txt</parameter>
-    </parameters>
-
     <services>
         <service id="mikemeier_php_node_bridge.config" class="mikemeier\PHPNodeBridge\Service\Config">
             <argument>%mikemeier_php_node_bridge.config%</argument>
         </service>
 
-        <service id="mikemeier_php_node_bridge.store" class="mikemeier\PHPNodeBridge\Store\Adapter\FileAdapter">
-            <argument>%mikemeier_php_node_bridge.store%</argument>
-        </service>
+        <service id="mikemeier_php_node_bridge.store" class="mikemeier\PHPNodeBridge\Store\Adapter\APCAdapter" />
 
         <service id="mikemeier_php_node_bridge.transport" class="mikemeier\PHPNodeBridge\Transport\Adapter\CurlAdapter">
             <argument type="service" id="mikemeier_php_node_bridge.config" />
@@ -39,8 +23,6 @@
         <service id="mikemeier_php_node_bridge.bridge" class="mikemeier\PHPNodeBridge\Service\Bridge">
             <argument type="service" id="mikemeier_php_node_bridge.config" />
             <argument type="service" id="mikemeier_php_node_bridge.usercontainer" />
-            <argument type="service" id="mikemeier_php_node_bridge.transport" />
-            <argument type="service" id="mikemeier_php_node_bridge.identificationstrategy" />
             <argument type="service" id="event_dispatcher" />
         </service>
 
@@ -48,13 +30,11 @@
 
         <service id="mikemeier_php_node_bridge.identificationstrategy" class="mikemeier\PHPNodeBridge\Identification\Strategy\SessionStrategy">
             <argument type="service" id="session" />
-            <argument type="service" id="mikemeier_php_node_bridge.encryption" />
-            <argument>%mikemeier_php_node_bridge.encryptionsalt%</argument>
+            <argument>%secret%</argument>
         </service>
 
         <service id="mikemeier_php_node_bridge.twigextension" class="mikemeier\PHPNodeBridge\Twig\TwigExtension">
             <argument type="service" id="mikemeier_php_node_bridge.bridge" />
-            <argument type="service" id="mikemeier_php_node_bridge.identificationstrategy" />
             <tag name="twig.extension" />
         </service>
     </services>

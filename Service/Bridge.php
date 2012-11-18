@@ -41,24 +41,36 @@ class Bridge
     /**
      * @param Config $config
      * @param UserContainer $userContainer
-     * @param TransportInterface $transport
-     * @param IdentificationStrategyInterface $identificationStrategy
      * @param EventDispatcher $eventDispatcher
      */
     public function __construct(
         Config $config,
         UserContainer $userContainer,
-        TransportInterface $transport,
-        IdentificationStrategyInterface $identificationStrategy,
         EventDispatcher $eventDispatcher
     ){
         $this->config = $config;
         $this->userContainer = $userContainer;
-        $this->transport = $transport;
-        $this->identificationStrategy = $identificationStrategy;
         $this->eventDispatcher = $eventDispatcher;
+    }
 
-        $this->registerEventListeners();
+    /**
+     * @param IdentificationStrategyInterface $identificationStrategy
+     * @return Bridge
+     */
+    public function setIdentificationStrategy(IdentificationStrategyInterface $identificationStrategy)
+    {
+        $this->identificationStrategy = $identificationStrategy;
+        return $this;
+    }
+
+    /**
+     * @param TransportInterface $transport
+     * @return Bridge
+     */
+    public function setTransport(TransportInterface $transport)
+    {
+        $this->transport = $transport;
+        return $this;
     }
 
     /**
@@ -141,16 +153,15 @@ class Bridge
             return $responses;
         }
 
-        $socketId = $request->request->get('socketId');
         $identification = $request->request->get('identification');
+        $socketId = $request->request->get('socketId');
 
         $user = $this->userContainer->getByIdentification($identification);
         if(!$user){
             $user = new User($identification);
         }
-        $user->addSocketId($socketId);
 
-        $eventNamePrefix = $this->config->getEventNamePrefix();
+        $eventNamePrefix = $this->getEventNamePrefix();
 
         foreach($events as $eventArray){
             $eventName = isset($eventArray['name']) ? $eventArray['name'] : null;
@@ -162,7 +173,7 @@ class Bridge
                     $eventArray['parameters'] : array();
 
                 $response = new Response($eventName);
-                $event = new Event($response, $user, $eventName, $eventParameters);
+                $event = new Event($response, $user, $identification, $socketId, $eventName, $eventParameters);
 
                 $responses[] = $response;
 
@@ -211,27 +222,60 @@ class Bridge
         return $this->transport->sendMessagesToUsers($messages, $users);
     }
 
-    protected function registerEventListeners()
+    /**
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventNamePrefix()
+    {
+        return $this->config->getEventNamePrefix();
+    }
+
+    public function registerEventListeners()
     {
         $self = $this;
 
         $this->addEventListener('user.connection', function(Event $event)use($self){
-            $user = $event->getUser();
-            $event->addMessage(new Message('bridge', 'add socket '. $user->getLastAddedSocketId()));
-            $self->getUserContainer()->add($user);
+            $event->addMessage(new Message('bridge', 'add socket '. $event->getSocketId()));
+
+            $dispatchNewIdentity = false;
+
+            $userContainer = $self->getUserContainer();
+            $user = $userContainer->getByIdentification($event->getIdentification());
+            if(!$user){
+                $user = $event->getUser();
+                $userContainer->add($user);
+                $dispatchNewIdentity = true;
+            }
+            $user->addSocketId($event->getSocketId());
+
+            if($dispatchNewIdentity){
+                $eventName = $self->getEventNamePrefix().'.user.newidentity';
+                $self->getEventDispatcher()->dispatch($eventName, $event);
+            }
         });
 
         $this->addEventListener('user.disconnection', function(Event $event)use($self){
-            $user = $event->getUser();
-            $event->addMessage(new Message('bridge', 'remove socket '. $user->getLastAddedSocketId()));
+            $event->addMessage(new Message('bridge', 'remove socket '. $event->getSocketId()));
 
-            $user->removeSocketId($user->getLastAddedSocketId());
-            if(!$user->hasSocketIds()){
-                $self->getUserContainer()->remove($user);
+            $userContainer = $self->getUserContainer();
+            foreach($userContainer->getAll() as $user){
+                $user->removeSocketId($event->getSocketId());
+                if(!$user->hasSocketIds()){
+                    $userContainer->remove($user);
+                }
             }
         });
 
         $this->addEventListener('server.restart', function(Event $event)use($self){
+            $event->addMessage(new Message('bridge', 'clear usercontainer'));
             $self->getUserContainer()->clear();
         });
     }

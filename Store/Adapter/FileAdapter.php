@@ -57,7 +57,7 @@ class FileAdapter implements StoreInterface
     /**
      * @param $key
      * @param $value
-     * @return FileAdapter
+     * @return FileAdapter|StoreInterface
      */
     public function set($key, $value)
     {
@@ -67,7 +67,7 @@ class FileAdapter implements StoreInterface
     }
 
     /**
-     * @return FileAdapter|\mikemeier\PHPNodeBridge\Store\StoreInterface
+     * @return FileAdapter|StoreInterface
      * @throws \InvalidArgumentException
      */
     public function flush()

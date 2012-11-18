@@ -18,7 +18,17 @@ class Event extends SymfonyEvent
      * @var User 
      */
     protected $user;
-    
+
+    /**
+     * @var string
+     */
+    protected $identification;
+
+    /**
+     * @var string
+     */
+    protected $socketId;
+
     /**
      * @var string 
      */
@@ -32,15 +42,19 @@ class Event extends SymfonyEvent
     /**
      * @param Response $response
      * @param User $user
+     * @param string $identification
+     * @param string $socketId
      * @param $name
      * @param array $parameters
      */
-    public function __construct(Response $response, User $user, $name, array $parameters = array())
+    public function __construct(Response $response, User $user, $identification, $socketId, $name, array $parameters = array())
     {
         $this->setName($name);
 
         $this->response = $response;
         $this->user = $user;
+        $this->identification = $identification;
+        $this->socketId = $socketId;
         $this->parameters = $parameters;
     }
 
@@ -58,6 +72,22 @@ class Event extends SymfonyEvent
     public function getParameters()
     {
         return $this->parameters;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIdentification()
+    {
+        return $this->identification;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSocketId()
+    {
+        return $this->socketId;
     }
 
     /**

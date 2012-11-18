@@ -2,6 +2,8 @@
 
 namespace mikemeier\PHPNodeBridge\Identification;
 
+use mikemeier\PHPNodeBridge\Encryption\EncryptionInterface;
+
 interface IdentificationStrategyInterface
 {
 
@@ -16,5 +18,10 @@ interface IdentificationStrategyInterface
      * @return string
      */
     public function decryptIdentification($encryptedIdentifcation);
+
+    /**
+     * @return IdentificationStrategyInterface
+     */
+    public function setEncryption(EncryptionInterface $encryption);
 
 }
