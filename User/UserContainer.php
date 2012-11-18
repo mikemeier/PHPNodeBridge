@@ -6,7 +6,12 @@ use mikemeier\PHPNodeBridge\Store\StoreInterface;
 
 class UserContainer
 {
-    
+
+    /**
+     * @var User[]
+     */
+    protected $users = array();
+
     /**
      * @var Store 
      */
@@ -27,6 +32,14 @@ class UserContainer
     {
         $this->store = $store;
         $this->storeKey = $storeKey;
+
+        $storeData = $this->store->get(self::STORE_KEY);
+        $this->users = $storeData ?: array();
+    }
+
+    public function __destruct()
+    {
+        $this->store->set(self::STORE_KEY, $this->users);
     }
 
     /**
@@ -34,19 +47,7 @@ class UserContainer
      */
     public function clear()
     {
-        $this->setUsersToStore(array());
-    }
-    
-    /**
-     * @param User $user
-     * @retur UserContainer
-     */
-    public function add(User $user)
-    {
-        $users = $this->getUsersFromStore();
-        $users[$user->getIdentification()] = $user;
-        $this->setUsersToStore($users);
-        return $this;
+        $this->users = array();
     }
     
     /**
@@ -54,7 +55,7 @@ class UserContainer
      */
     public function getAll()
     {
-        return $this->getUsersFromStore();
+        return $this->users;
     }
     
     /**
@@ -63,32 +64,18 @@ class UserContainer
      */
     public function getByIdentification($identification)
     {
-        $users = $this->getUsersFromStore();
-        return isset($users[$identification]) ?
-            $users[$identification] : null;
+        return isset($this->users[$identification]) ?
+            $this->users[$identification] : null;
     }
-    
+
     /**
-     * @param User $user
-     * @return UserContainer 
+     * @param array User[]
+     * @return UserContainer
      */
-    public function remove(User $user)
+    public function setUsers(array $users)
     {
-        $users = $this->getUsersFromStore();
-        unset($users[$user->getIdentification()]);
-        $this->setUsersToStore($users);
-
+        $this->users = $users;
         return $this;
-    }
-
-    protected function getUsersFromStore()
-    {
-        return $this->store->get($this->storeKey) ?: array();
-    }
-
-    protected function setUsersToStore($users)
-    {
-        $this->store->set($this->storeKey, $users);
     }
     
 }

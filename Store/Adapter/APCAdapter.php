@@ -24,7 +24,6 @@ class APCAdapter implements StoreInterface
     public function set($key, $value)
     {
         apc_store($key, $value);
-
         return $this;
     }
 

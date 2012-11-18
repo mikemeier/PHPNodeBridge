@@ -32,11 +32,11 @@ class User
     }
 
     /**
-     * @return string
+     * @param array $socketIds
      */
-    public function getLastAddedSocketId()
+    public function setSocketIds(array $socketIds)
     {
-        return end($this->socketIds);
+        $this->socketIds = $socketIds;
     }
 
     /**
@@ -47,6 +47,19 @@ class User
     {
         if(!$this->hasSocketId($socketId)){
             $this->socketIds[] = $socketId;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $socketIds
+     * @return User
+     */
+    public function addSocketIds(array $socketIds)
+    {
+        foreach($socketIds as $socketId){
+            $this->addSocketId($socketId);
         }
 
         return $this;

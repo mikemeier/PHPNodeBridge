@@ -130,8 +130,7 @@ class Bridge
             'identification' => $clientIdentification
         );
         
-        return $this->getSocketIoServerUri().'/'. $this->config->getSocketIoApiTokenName() 
-            .'?'.http_build_query($paras);
+        return $this->getSocketIoServerUri().'?'.http_build_query($paras);
     }
 
     /**
@@ -142,24 +141,38 @@ class Bridge
     {
         $responses = array();
 
+        $userJSON = $request->request->get('users');
         $eventJSON = $request->request->get('events');
 
-        if(!$eventJSON){
+        if(!$userJSON || !$eventJSON){
             return $responses;
         }
 
+        $users = @json_decode($userJSON, true);
         $events = @json_decode($eventJSON, true);
-        if(!$events){
+        if(!$users || !$events){
             return $responses;
         }
 
-        $identification = $request->request->get('identification');
         $socketId = $request->request->get('socketId');
 
-        $user = $this->userContainer->getByIdentification($identification);
-        if(!$user){
-            $user = new User($identification);
+        if(!$socketId){
+            return $responses;
         }
+
+        $userObjects = array();
+        foreach($users as $encryptedIdentification => $socketIds){
+            $identification = $this->identificationStrategy->decryptIdentification($encryptedIdentification);
+
+            $userObject = new User($identification);
+            $userObject->setSocketIds($socketIds);
+            $userObjects[$identification] = $userObject;
+
+            if(in_array($socketId, $socketIds)){
+                $user = $userObject;
+            }
+        }
+        $this->userContainer->setUsers($userObjects);
 
         $eventNamePrefix = $this->getEventNamePrefix();
 
@@ -244,38 +257,6 @@ class Bridge
     public function registerEventListeners()
     {
         $self = $this;
-
-        $this->addEventListener('user.connection', function(Event $event)use($self){
-            $event->addMessage(new Message('bridge', 'add socket '. $event->getSocketId()));
-
-            $dispatchNewIdentity = false;
-
-            $userContainer = $self->getUserContainer();
-            $user = $userContainer->getByIdentification($event->getIdentification());
-            if(!$user){
-                $user = $event->getUser();
-                $userContainer->add($user);
-                $dispatchNewIdentity = true;
-            }
-            $user->addSocketId($event->getSocketId());
-
-            if($dispatchNewIdentity){
-                $eventName = $self->getEventNamePrefix().'.user.newidentity';
-                $self->getEventDispatcher()->dispatch($eventName, $event);
-            }
-        });
-
-        $this->addEventListener('user.disconnection', function(Event $event)use($self){
-            $event->addMessage(new Message('bridge', 'remove socket '. $event->getSocketId()));
-
-            $userContainer = $self->getUserContainer();
-            foreach($userContainer->getAll() as $user){
-                $user->removeSocketId($event->getSocketId());
-                if(!$user->hasSocketIds()){
-                    $userContainer->remove($user);
-                }
-            }
-        });
 
         $this->addEventListener('server.restart', function(Event $event)use($self){
             $event->addMessage(new Message('bridge', 'clear usercontainer'));
