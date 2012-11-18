@@ -29,6 +29,15 @@ Bridge.prototype = {
         this.io.emit('message', eventName, args, cb);
 
         return this;
+    },
+
+    on: function(eventName, cb){
+        var self = this;
+
+        this.io.on(eventName, function(){
+            console.log(arguments);
+            cb.apply(self, arguments);
+        });
     }
 
 };

@@ -155,25 +155,52 @@ class Bridge
         }
 
         $socketId = $request->request->get('socketId');
+        $encryptedIdentification = $request->request->get('identification');
 
-        if(!$socketId){
+        if(!$encryptedIdentification || !$socketId){
             return $responses;
+        }
+
+        $identification = $this->identificationStrategy->decryptIdentification($encryptedIdentification);
+        if(!$this->userContainer->getByIdentification($identification)){
+            $events[] = array(
+                'name' => 'user.newidentities',
+                'parameters' => array(
+                    'users' => array(new User($identification))
+                )
+            );
         }
 
         $userObjects = array();
         foreach($users as $encryptedIdentification => $socketIds){
-            $identification = $this->identificationStrategy->decryptIdentification($encryptedIdentification);
+            $userIdentification = $this->identificationStrategy->decryptIdentification($encryptedIdentification);
 
-            $userObject = new User($identification);
+            $userObject = new User($userIdentification);
             $userObject->setSocketIds($socketIds);
-            $userObjects[$identification] = $userObject;
+            $userObjects[$userIdentification] = $userObject;
 
             if(in_array($socketId, $socketIds)){
                 $user = $userObject;
             }
         }
-        $this->userContainer->setUsers($userObjects);
 
+        $removedUsers = array();
+        foreach($this->userContainer->getAll() as $containerUser){
+            if(!isset($userObjects[$containerUser->getIdentification()])){
+                $removedUsers[] = $containerUser;
+            }
+        }
+
+        if($removedUsers){
+            $events[] = array(
+                'name' => 'user.removedidentities',
+                'parameters' => array(
+                    'users' => $removedUsers
+                )
+            );
+        }
+
+        $this->userContainer->setUsers($userObjects);
         $eventNamePrefix = $this->getEventNamePrefix();
 
         foreach($events as $eventArray){
@@ -186,7 +213,7 @@ class Bridge
                     $eventArray['parameters'] : array();
 
                 $response = new Response($eventName);
-                $event = new Event($response, $user, $identification, $socketId, $eventName, $eventParameters);
+                $event = new Event($this, $response, $user, $identification, $socketId, $eventName, $eventParameters);
 
                 $responses[] = $response;
 

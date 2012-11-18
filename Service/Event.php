@@ -10,6 +10,11 @@ class Event extends SymfonyEvent
 {
 
     /**
+     * @var Bridge
+     */
+    protected $bridge;
+
+    /**
      * @var Response 
      */
     protected $response;
@@ -40,17 +45,19 @@ class Event extends SymfonyEvent
     protected $parameters = array();
 
     /**
+     * @param Bridge $bridge
      * @param Response $response
      * @param User $user
-     * @param string $identification
-     * @param string $socketId
+     * @param $identification
+     * @param $socketId
      * @param $name
      * @param array $parameters
      */
-    public function __construct(Response $response, User $user, $identification, $socketId, $name, array $parameters = array())
+    public function __construct(Bridge $bridge, Response $response, User $user, $identification, $socketId, $name, array $parameters = array())
     {
         $this->setName($name);
 
+        $this->bridge = $bridge;
         $this->response = $response;
         $this->user = $user;
         $this->identification = $identification;
@@ -64,6 +71,14 @@ class Event extends SymfonyEvent
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @return Bridge
+     */
+    public function getBridge()
+    {
+        return $this->bridge;
     }
 
     /**
