@@ -26,7 +26,6 @@ class CompilerPass implements CompilerPassInterface
 
         $bridgeService->addMethodCall('setIdentificationStrategy', array(new Reference($identificationStrategyServiceId)));
         $bridgeService->addMethodCall('setTransport', array(new Reference($transportServiceId)));
-        $bridgeService->addMethodCall('registerEventListeners');
 
         $userContainerService->addArgument(new Reference($storeServiceId));
     }

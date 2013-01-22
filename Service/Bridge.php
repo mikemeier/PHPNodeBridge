@@ -277,20 +277,5 @@ class Bridge
     {
         return $this->config->getEventNamePrefix();
     }
-
-    /**
-     * @return Bridge
-     */
-    public function registerEventListeners()
-    {
-        $self = $this;
-
-        $this->addEventListener('server.restart', function(Event $event)use($self){
-            $event->addMessage(new Message('bridge', 'clear usercontainer'));
-            $self->getUserContainer()->clear();
-        });
-
-        return $this;
-    }
     
 }
